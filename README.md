@@ -1,6 +1,6 @@
 <div align="center">
 <h1>
-     MetaSeg:Packaged version of the Segment Anything repository
+     MetaSeg: Packaged version of the Segment Anything repository
 </h1>
 <div>
     <a href="https://pepy.tech/project/metaseg"><img src="https://pepy.tech/badge/metaseg" alt="downloads"></a>
