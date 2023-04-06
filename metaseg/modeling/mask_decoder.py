@@ -10,7 +10,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from meta_segment.modeling.common import LayerNorm2d
+from metaseg.modeling.common import LayerNorm2d
 
 
 class MaskDecoder(nn.Module):

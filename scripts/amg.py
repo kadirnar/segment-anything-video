@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 import cv2  # type: ignore
 
-from meta_segment import SamAutomaticMaskGenerator, sam_model_registry
+from metaseg import SamAutomaticMaskGenerator, sam_model_registry
 
 parser = argparse.ArgumentParser(
     description=(

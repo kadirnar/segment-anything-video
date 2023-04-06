@@ -9,8 +9,8 @@ from typing import Optional, Tuple
 import numpy as np
 import torch
 
-from meta_segment.modeling import Sam
-from meta_segment.utils.transforms import ResizeLongestSide
+from metaseg.modeling import Sam
+from metaseg.utils.transforms import ResizeLongestSide
 
 
 class SamPredictor:

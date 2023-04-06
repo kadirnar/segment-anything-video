@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from meta_segment.modeling.common import LayerNorm2d
+from metaseg.modeling.common import LayerNorm2d
 
 
 class PromptEncoder(nn.Module):

@@ -10,8 +10,8 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from meta_segment.modeling import Sam
-from meta_segment.utils.amg import calculate_stability_score
+from metaseg.modeling import Sam
+from metaseg.utils.amg import calculate_stability_score
 
 
 class SamOnnxModel(nn.Module):
