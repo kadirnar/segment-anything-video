@@ -10,9 +10,9 @@ import numpy as np
 import torch
 from torchvision.ops.boxes import batched_nms, box_area  # type: ignore
 
-from meta_segment.modeling import Sam
-from meta_segment.predictor import SamPredictor
-from meta_segment.utils.amg import (
+from metaseg.modeling import Sam
+from metaseg.predictor import SamPredictor
+from metaseg.utils.amg import (
     MaskData,
     area_from_rle,
     batch_iterator,

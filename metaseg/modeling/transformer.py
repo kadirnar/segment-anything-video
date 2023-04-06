@@ -10,7 +10,7 @@ from typing import Tuple, Type
 import torch
 from torch import Tensor, nn
 
-from meta_segment.modeling.common import MLPBlock
+from metaseg.modeling.common import MLPBlock
 
 
 class TwoWayTransformer(nn.Module):

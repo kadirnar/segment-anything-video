@@ -10,9 +10,9 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from meta_segment.modeling.image_encoder import ImageEncoderViT
-from meta_segment.modeling.mask_decoder import MaskDecoder
-from meta_segment.modeling.prompt_encoder import PromptEncoder
+from metaseg.modeling.image_encoder import ImageEncoderViT
+from metaseg.modeling.mask_decoder import MaskDecoder
+from metaseg.modeling.prompt_encoder import PromptEncoder
 
 
 class Sam(nn.Module):

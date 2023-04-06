@@ -9,8 +9,8 @@ import warnings
 
 import torch
 
-from meta_segment import build_sam, build_sam_vit_b, build_sam_vit_l
-from meta_segment.utils.onnx import SamOnnxModel
+from metaseg import build_sam, build_sam_vit_b, build_sam_vit_l
+from metaseg.utils.onnx import SamOnnxModel
 
 try:
     import onnxruntime  # type: ignore
