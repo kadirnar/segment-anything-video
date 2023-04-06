@@ -1,6 +1,6 @@
 <div align="center">
 <h1>
-     Meta-Segment: Segment Anything Model
+     MetaSeg:Packaged version of the Segment Anything repository
 </h1>
 <div>
     <a href="https://pepy.tech/project/metaseg"><img src="https://pepy.tech/badge/metaseg" alt="downloads"></a>
@@ -13,11 +13,17 @@ This repo is a packaged version of the [segment-anything](https://github.com/fac
 
 ### Installation
 ```bash
-pip install meta-segment
-
+pip install metaseg
 ```
 
 ### Usage
 ```python
+from metaseg import SegAutoMaskGenerator
 
+SegAutoMaskGenerator(
+        model_type="default", 
+        checkpoint_path="sam_vit_h_4b8939.pth",
+        image_path= "test.png",
+        device="cuda",
+        show_mask=True, 
 ```
