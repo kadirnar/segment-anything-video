@@ -3,7 +3,8 @@
      Meta-Segment: Segment Anything Model
 </h1>
 <div>
-    <a href="https://badge.fury.io/py/meta-segment"><img src="https://badge.fury.io/py/meta-segment.svg" alt="pypi version"></a>
+    <a href="https://pepy.tech/project/metaseg"><img src="https://pepy.tech/badge/metaseg" alt="downloads"></a>
+    <a href="https://badge.fury.io/py/metaseg"><img src="https://badge.fury.io/py/metaseg.svg" alt="pypi version"></a>
 </div>
 </div>
 
