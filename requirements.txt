@@ -1,0 +1,10 @@
+onnxruntime
+pycocotools
+torch>=1.7
+torchvision>=0.8
+
+# code formatting
+black==21.7b0 
+flake8==3.9.2
+isort==5.9.2
+click==8.0.4
