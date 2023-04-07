@@ -1,7 +1,7 @@
 <div align="center">
-<h1>
+<h2>
      MetaSeg: Packaged version of the Segment Anything repository
-</h1>
+</h2>
 <div>
     <img width="1000" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.1.2/metaseg_demo.png">
 </div>
