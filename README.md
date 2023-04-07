@@ -3,7 +3,7 @@
      MetaSeg: Packaged version of the Segment Anything repository
 </h1>
 <div>
-    <img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.1.2/metaseg_demo.png">
+    <img width="1000" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.1.2/metaseg_demo.png">
 </div>
     <a href="https://badge.fury.io/py/metaseg"><img src="https://badge.fury.io/py/metaseg.svg" alt="pypi version"></a>
 
