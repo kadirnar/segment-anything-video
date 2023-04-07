@@ -21,10 +21,20 @@ pip install metaseg
 ```python
 from metaseg import SegAutoMaskGenerator
 
+# If gpu memory is not enough, reduce the points_per_side and points_per_batch.
+
 SegAutoMaskGenerator(
-        model_type="default", 
-        checkpoint_path="sam_vit_h_4b8939.pth",
-        image_path= "test.png",
-        device="cuda",
-        show_mask=True, 
+        model_type="vit_h", # "vit_l", "vit_b"
+        source= "test.png", # test.mp4
+        device="cuda", # "cpu" or "cuda"
+        show=True, 
+        points_per_side=16, # Optional
+        points_per_batch=64, # Optional
+)
 ```
+
+# Extra Features
+
+- [x] Support for video files
+- [x] Support for pip installation
+- [x] Support for automatic download model weights
