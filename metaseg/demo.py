@@ -1,5 +1,3 @@
-from typing import Optional
-
 import cv2
 import numpy as np
 import torch
@@ -16,7 +14,7 @@ class SegAutoMaskGenerator:
     def load_model(self, model_type):
         if self.model is None:
             model_path = download_model(model_type)
-            model = sam_model_registry[self.model_type](checkpoint=model_path)
+            model = sam_model_registry[model_type](checkpoint=model_path)
             model.to(device=self.device)
             self.model = model
 
@@ -72,8 +70,8 @@ class SegAutoMaskGenerator:
 
         return "output.jpg"
 
-    def save_video(self, source, model_type, points_per_side, points_per_batch):
-        cap, out = self.load_video()
+    def save_video(self, source, model_type, points_per_side, points_per_batch, min_area, max_area):
+        cap, out = self.load_video(source)
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
 
         while True:
@@ -81,7 +79,7 @@ class SegAutoMaskGenerator:
             if not ret:
                 break
 
-            image, anns = self.predict(frame)
+            image, anns = self.predict(frame, model_type, points_per_side, points_per_batch)
             if len(anns) == 0:
                 continue
 
@@ -91,7 +89,7 @@ class SegAutoMaskGenerator:
             )
 
             for i, ann in enumerate(sorted_anns):
-                if ann["area"] > 5000:
+                if max_area > ann["area"] > min_area:
                     m = ann["segmentation"]
                     color = colors[i % 256]  # Her nesne için farklı bir renk kullan
                     img = np.zeros((m.shape[0], m.shape[1], 3), dtype=np.uint8)
