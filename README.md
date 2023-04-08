@@ -31,7 +31,8 @@ autoseg_image = SegAutoMaskGenerator().save_image(
     source="image.jpg",
     model_type="vit_l",
     points_per_side=16, 
-    points_per_batch=64
+    points_per_batch=64,
+    min_area=0,
 )
 
 # For video
@@ -40,7 +41,8 @@ autoseg_video = SegAutoMaskGenerator().save_video(
     source="video.mp4",
     model_type="vit_l",
     points_per_side=16, 
-    points_per_batch=64
+    points_per_batch=64,
+    min_area=1000,
 )
 ```
 
