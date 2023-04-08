@@ -7,7 +7,7 @@
 </div>
     <a href="https://pepy.tech/project/metaseg"><img src="https://pepy.tech/badge/metaseg" alt="downloads"></a>
     <a href="https://badge.fury.io/py/metaseg"><img src="https://badge.fury.io/py/metaseg.svg" alt="pypi version"></a>
-    <a href="https://huggingface.co/spaces/ArtGAN/metaseg-webui"><img src="https://img.shields.io/badge/%MetaSeg%20-Demo-blue.svg" alt="HuggingFace Spaces"></a>
+    <a href="https://huggingface.co/spaces/ArtGAN/metaseg-webui"><img src="https://img.shields.io/badge/%20MetaSeg%20-Demo-blue.svg" alt="HuggingFace Spaces"></a>
 
 </div>
 
