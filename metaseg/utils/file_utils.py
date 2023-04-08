@@ -27,6 +27,3 @@ def download_model(model_type):
         raise ValueError("Invalid model type. It should be 'vit_h', 'vit_l', or 'vit_b'.")
 
     return filename
-
-
-download_model("vit_b")

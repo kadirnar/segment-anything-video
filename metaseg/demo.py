@@ -3,8 +3,7 @@ import numpy as np
 import torch
 
 from metaseg import SamAutomaticMaskGenerator, sam_model_registry
-from metaseg.utils.file import download_model
-
+from metaseg.utils import download_model, load_image, load_video
 
 class SegAutoMaskGenerator:
     def __init__(self):
@@ -20,21 +19,6 @@ class SegAutoMaskGenerator:
 
         return self.model
 
-    def load_image(self, image_path):
-        image = cv2.imread(image_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return image
-
-    def load_video(self, video_path):
-        cap = cv2.VideoCapture(video_path)
-        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
-        out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
-
-        return cap, out
-
     def predict(self, frame, model_type, points_per_side, points_per_batch):
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
@@ -45,7 +29,7 @@ class SegAutoMaskGenerator:
         return frame, masks
 
     def save_image(self, source, model_type, points_per_side, points_per_batch):
-        read_image = self.load_image(source)
+        read_image = load_image(source)
         image, anns = self.predict(read_image, model_type, points_per_side, points_per_batch)
         if len(anns) == 0:
             return
@@ -71,7 +55,7 @@ class SegAutoMaskGenerator:
         return "output.jpg"
 
     def save_video(self, source, model_type, points_per_side, points_per_batch, min_area, max_area):
-        cap, out = self.load_video(source)
+        cap, out = load_video(source)
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
 
         while True:
