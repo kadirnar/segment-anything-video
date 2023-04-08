@@ -86,18 +86,31 @@ def video_app():
                             value=64,
                             label="Points per Batch",
                         )
+                        with gr.Row():
+                            with gr.Column():
+                                seg_automask_video_min_area = gr.Number(
+                                    value=1000,
+                                    label="Min Area",
+                                )
+
+                                seg_automask_video_max_area = gr.Number(
+                                    value=10000,
+                                    label="Max Area",
+                                )
 
                 seg_automask_video_predict = gr.Button(value="Generator")
             with gr.Column():
                 output_video = gr.Video()
 
         seg_automask_video_predict.click(
-            fn=SegAutoMaskGenerator().save_image,
+            fn=SegAutoMaskGenerator().save_video,
             inputs=[
                 seg_automask_video_file,
                 seg_automask_video_model_type,
                 seg_automask_video_points_per_side,
                 seg_automask_video_points_per_batch,
+                seg_automask_video_min_area,
+                seg_automask_video_max_area,
             ],
             outputs=[output_video],
         )
