@@ -19,7 +19,7 @@ class SegManualMaskGenerator:
 
         return self.model
 
-    def load_mask(mask, random_color=True):
+    def load_mask(self, mask, random_color):
         if random_color:
             color = np.random.rand(3) * 255
         else:
@@ -29,7 +29,7 @@ class SegManualMaskGenerator:
         mask_image = mask_image.astype(np.uint8)
         return mask_image
 
-    def load_box(box, image):
+    def load_box(self, box, image):
         x0, y0 = box[0], box[1]
         x1, y1 = box[2], box[3]
         cv2.rectangle(image, (x0, y0), (x1, y1), (0, 255, 0), 2)
@@ -55,9 +55,22 @@ class SegManualMaskGenerator:
         if len(anns) == 0:
             return
 
-        mask_image = self.load_mask(anns, random_color=True)
+        mask_image = self.load_mask(anns, True)
         image = self.load_box(input_box, image)
         combined_mask = cv2.add(image, mask_image)
         cv2.imwrite("output.jpg", combined_mask)
 
         return "output.jpg"
+
+
+if __name__ == "__main__":
+    model_type = "vit_l"
+    seg_manual_mask_generator = SegManualMaskGenerator()
+    seg_manual_mask_generator.save_image(
+        source="data.jpg",
+        model_type="vit_l",
+        x0=100,
+        y0=100,
+        x1=200,
+        y1=200,
+    )
