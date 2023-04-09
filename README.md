@@ -51,5 +51,6 @@ autoseg_video = SegAutoMaskGenerator().save_video(
 - [x] Support for video files
 - [x] Support for pip installation
 - [x] Support for web application
+- [x] Support for box to polygon conversion
 - [x] Support for automatic download model weights
 
