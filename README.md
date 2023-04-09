@@ -7,12 +7,11 @@
 </div>
     <a href="https://pepy.tech/project/metaseg"><img src="https://pepy.tech/badge/metaseg" alt="downloads"></a>
     <a href="https://badge.fury.io/py/metaseg"><img src="https://badge.fury.io/py/metaseg.svg" alt="pypi version"></a>
-    <a href="https://huggingface.co/spaces/ArtGAN/metaseg-webui"><img src="https://img.shields.io/badge/%20HuggingFace%20-Demo-blue.svg" alt="HuggingFace Spaces"></a>
+    <a href="https://huggingface.co/spaces/ArtGAN/metaseg-webui"><img src="https://huggingface.co/datasets/huggingface/badges/raw/main/open-in-hf-spaces-sm.svg" alt="HuggingFace Spaces"></a>
 
 </div>
 
 This repo is a packaged version of the [segment-anything](https://github.com/facebookresearch/segment-anything) model.
-
 
 ### Installation
 ```bash
@@ -21,7 +20,7 @@ pip install metaseg
 
 ### Usage
 ```python
-from metaseg import SegAutoMaskGenerator
+from metaseg import SegAutoMaskPredictor, SegManualMaskPredictor
 
 # If gpu memory is not enough, reduce the points_per_side and points_per_batch.
 
@@ -46,7 +45,6 @@ autoseg_video = SegAutoMaskGenerator().save_video(
 )
 
 # For manuel box selection
-from metaseg import SegManualMaskGenerator
 
 seg_manual_mask_generator = SegManualMaskGenerator().save_image(
     source="image.jpg",
@@ -57,7 +55,6 @@ seg_manual_mask_generator = SegManualMaskGenerator().save_image(
     y1=200,
 )
 ```
-
 # Extra Features
 
 - [x] Support for video files
