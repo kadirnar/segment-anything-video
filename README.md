@@ -26,7 +26,7 @@ from metaseg import SegAutoMaskPredictor, SegManualMaskPredictor
 
 # For image
 
-autoseg_image = SegAutoMaskGenerator().save_image(
+autoseg_image = SegAutoMaskPredictor().save_image(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
     points_per_side=16, 
@@ -36,7 +36,7 @@ autoseg_image = SegAutoMaskGenerator().save_image(
 
 # For video
 
-autoseg_video = SegAutoMaskGenerator().save_video(
+autoseg_video = SegAutoMaskPredictor().save_video(
     source="video.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
     points_per_side=16, 
@@ -46,7 +46,7 @@ autoseg_video = SegAutoMaskGenerator().save_video(
 
 # For manuel box selection
 
-seg_manual_mask_generator = SegManualMaskGenerator().save_image(
+seg_manual_mask_generator = SegManualMaskPredictor().save_image(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
     x0=100,
