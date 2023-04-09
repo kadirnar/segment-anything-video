@@ -5,6 +5,7 @@ import torch
 from metaseg import SamAutomaticMaskGenerator, sam_model_registry
 from metaseg.utils import download_model, load_image, load_video
 
+
 class SegAutoMaskGenerator:
     def __init__(self):
         self.model = None
@@ -21,8 +22,9 @@ class SegAutoMaskGenerator:
     def predict(self, frame, model_type, points_per_side, points_per_batch, min_area):
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
-            model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area)
-        
+            model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area
+        )
+
         masks = mask_generator.generate(frame)
 
         return frame, masks

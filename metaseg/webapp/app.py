@@ -36,11 +36,11 @@ def image_app():
                             value=64,
                             label="Points per Batch",
                         )
-                    
+
                         seg_automask_image_min_area = gr.Number(
                             value=0,
                             label="Min Area",
-                        )  
+                        )
 
                 seg_automask_image_predict = gr.Button(value="Generator")
 
@@ -98,8 +98,6 @@ def video_app():
                                     value=1000,
                                     label="Min Area",
                                 )
-
-
 
                 seg_automask_video_predict = gr.Button(value="Generator")
             with gr.Column():
