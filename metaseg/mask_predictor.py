@@ -32,7 +32,7 @@ class SegAutoMaskPredictor:
 
         return frame, masks
 
-    def save_image(self, source, model_type, points_per_side, points_per_batch, min_area):
+    def save_image(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png"):
         read_image = load_image(source)
         image, anns = self.predict(read_image, model_type, points_per_side, points_per_batch, min_area)
         if len(anns) == 0:
@@ -54,12 +54,12 @@ class SegAutoMaskPredictor:
             mask_image = cv2.add(mask_image, img)
 
         combined_mask = cv2.add(image, mask_image)
-        cv2.imwrite("output.jpg", combined_mask)
+        cv2.imwrite(output_path, combined_mask)
 
-        return "output.jpg"
+        return output_path
 
-    def save_video(self, source, model_type, points_per_side, points_per_batch, min_area):
-        cap, out = load_video(source)
+    def save_video(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
+        cap, out = load_video(source, output_path)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
 
@@ -95,7 +95,7 @@ class SegAutoMaskPredictor:
         cap.release()
         cv2.destroyAllWindows()
 
-        return "output.mp4"
+        return output_path
 
 
 class SegManualMaskPredictor:
@@ -175,7 +175,7 @@ class SegManualMaskPredictor:
         input_point=None,
         input_label=None,
         multimask_output=False,
-        output_path="v0.jpg",
+        output_path="output.png",
     ):
         read_image = load_image(source)
         image, anns, boxes = self.predict(read_image, model_type, input_box, input_point, input_label, multimask_output)
