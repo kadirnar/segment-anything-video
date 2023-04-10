@@ -114,16 +114,21 @@ class SegManualMaskPredictor:
             color = np.random.rand(3) * 255
         else:
             color = np.array([100, 50, 0])
+
         h, w = mask.shape[-2:]
         mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
         mask_image = mask_image.astype(np.uint8)
         return mask_image
 
     def load_box(self, box, image):
-        x0, y0 = box[0], box[1]
-        x1, y1 = box[2], box[3]
-        cv2.rectangle(image, (x0, y0), (x1, y1), (0, 255, 0), 2)
+        x, y, w, h = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+        cv2.rectangle(image, (x, y), (w, h), (0, 255, 0), 2)
         return image
+
+    def multi_boxes(self, boxes, predictor, image):
+        input_boxes = torch.tensor(boxes, device=predictor.device)
+        transformed_boxes = predictor.transform.apply_boxes_torch(input_boxes, image.shape[:2])
+        return input_boxes, transformed_boxes
 
     def predict(
         self,
@@ -136,17 +141,29 @@ class SegManualMaskPredictor:
     ):
         model = self.load_model(model_type)
         predictor = SamPredictor(model)
-
         predictor.set_image(frame)
-        input_box = np.array(input_box)
-        masks, _, _ = predictor.predict(
-            point_coords=input_point,
-            point_labels=input_label,
-            box=input_box[None, :],
-            multimask_output=multimask_output,
-        )
 
-        return frame, masks, input_box
+        if type(input_box[0]) == list:
+            input_boxes, new_boxes = self.multi_boxes(input_box, predictor, frame)
+
+            masks, _, _ = predictor.predict_torch(
+                point_coords=None,
+                point_labels=None,
+                boxes=new_boxes,
+                multimask_output=False,
+            )
+
+        elif type(input_box[0]) == int:
+            input_boxes = np.array(input_box)[None, :]
+
+            masks, _, _ = predictor.predict(
+                point_coords=input_point,
+                point_labels=input_label,
+                box=input_boxes,
+                multimask_output=multimask_output,
+            )
+
+        return frame, masks, input_boxes
 
     def save_image(
         self,
@@ -156,18 +173,25 @@ class SegManualMaskPredictor:
         input_point=None,
         input_label=None,
         multimask_output=False,
-        output_path="output.jpg",
+        output_path="v0.jpg",
     ):
         read_image = load_image(source)
-        image, anns, input_box = self.predict(
-            read_image, model_type, input_box, input_point, input_label, multimask_output
-        )
+        image, anns, boxes = self.predict(read_image, model_type, input_box, input_point, input_label, multimask_output)
         if len(anns) == 0:
             return
 
-        mask_image = self.load_mask(anns, True)
-        image = self.load_box(input_box, image)
+        if type(input_box[0]) == list:
+            for mask in anns:
+                mask_image = self.load_mask(mask.cpu().numpy(), False)
+
+            for box in boxes:
+                image = self.load_box(box.cpu().numpy(), image)
+
+        elif type(input_box[0]) == int:
+            mask_image = self.load_mask(anns, True)
+            image = self.load_box(input_box, image)
+
         combined_mask = cv2.add(image, mask_image)
-        cv2.imwrite(output_path, combined_mask)
+        cv2.write(output_path, combined_mask)
 
         return output_path

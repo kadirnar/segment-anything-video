@@ -49,18 +49,29 @@ autoseg_video = SegAutoMaskPredictor().save_video(
 seg_manual_mask_generator = SegManualMaskPredictor().save_image(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
-    point_coords=[[100, 100], [200, 200]]
-    point_labels=[0, 1]
+    input_point=[[100, 100], [200, 200]]
+    input_label=[0, 1]
     input_box=[100, 100, 200, 200] # x,y,w,h
     multimask_output=False,
 
 )
 
+# For multi box selection
+
+seg_manual_mask_generator = SegManualMaskPredictor().save_image(
+    source="data/brain.png",
+    model_type="vit_l",
+    input_point=None,
+    input_label=None,
+    input_box= [[100, 100, 400, 400]],
+    multimask_output=False,
+
+)
 ```
 # Extra Features
 
 - [x] Support for video files
 - [x] Support for pip installation
 - [x] Support for web application
-- [x] Support for manual box and point selection
+- [x] Support for manual single multi box and point selection
 - [x] Support for automatic download model weights
