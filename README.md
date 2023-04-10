@@ -70,8 +70,8 @@ seg_manual_mask_generator = SegManualMaskPredictor().save_image(
 ```
 # Extra Features
 
-- [x] Support for video files
-- [x] Support for pip installation
-- [x] Support for web application
+- [x] Support for Yolov5/8, Detectron2, Mmdetection, Torchvision models
+- [x] Support for video and web application(Huggingface Spaces)
 - [x] Support for manual single multi box and point selection
-- [x] Support for automatic download model weights
+- [x] Support for pip installation
+- [x] Support for SAHI library
