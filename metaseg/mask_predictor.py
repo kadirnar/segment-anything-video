@@ -1,3 +1,5 @@
+from typing import Any, Dict, List, Optional
+
 import cv2
 import numpy as np
 import torch
@@ -123,29 +125,49 @@ class SegManualMaskPredictor:
         cv2.rectangle(image, (x0, y0), (x1, y1), (0, 255, 0), 2)
         return image
 
-    def predict(self, frame, model_type, x0, y0, x1, y1):
+    def predict(
+        self,
+        frame,
+        model_type,
+        input_box=None,
+        input_point=None,
+        input_label=None,
+        multimask_output=False,
+    ):
         model = self.load_model(model_type)
         predictor = SamPredictor(model)
+
         predictor.set_image(frame)
-        input_box = np.array([x0, y0, x1, y1])
+        input_box = np.array(input_box)
         masks, _, _ = predictor.predict(
-            point_coords=None,
-            point_labels=None,
+            point_coords=input_point,
+            point_labels=input_label,
             box=input_box[None, :],
-            multimask_output=False,
+            multimask_output=multimask_output,
         )
 
         return frame, masks, input_box
 
-    def save_image(self, source, model_type, x0, y0, x1, y1):
+    def save_image(
+        self,
+        source,
+        model_type,
+        input_box=None,
+        input_point=None,
+        input_label=None,
+        multimask_output=False,
+        output_path="output.jpg",
+    ):
         read_image = load_image(source)
-        image, anns, input_box = self.predict(read_image, model_type, x0, y0, x1, y1)
+        image, anns, input_box = self.predict(
+            read_image, model_type, input_box, input_point, input_label, multimask_output
+        )
         if len(anns) == 0:
             return
 
         mask_image = self.load_mask(anns, True)
         image = self.load_box(input_box, image)
         combined_mask = cv2.add(image, mask_image)
-        cv2.imwrite("output.jpg", combined_mask)
+        cv2.imwrite(output_path, combined_mask)
 
-        return "output.jpg"
+        return output_path
