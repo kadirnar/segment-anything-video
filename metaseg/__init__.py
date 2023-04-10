@@ -9,4 +9,4 @@ from metaseg.generator.build_sam import build_sam, build_sam_vit_b, build_sam_vi
 from metaseg.generator.predictor import SamPredictor
 from metaseg.mask_predictor import SegAutoMaskPredictor, SegManualMaskPredictor
 
-__version__ = "0.4.2"
+__version__ = "0.4.4"
