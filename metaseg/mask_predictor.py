@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 import cv2
 import numpy as np
 import torch
+from tqdm import tqdm
 
 from metaseg import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
 from metaseg.utils import download_model, load_image, load_video
@@ -59,9 +60,10 @@ class SegAutoMaskPredictor:
 
     def save_video(self, source, model_type, points_per_side, points_per_batch, min_area):
         cap, out = load_video(source)
+        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
 
-        while True:
+        for _ in tqdm(range(length)):
             ret, frame = cap.read()
             if not ret:
                 break
