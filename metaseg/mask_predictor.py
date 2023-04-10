@@ -192,6 +192,6 @@ class SegManualMaskPredictor:
             image = self.load_box(input_box, image)
 
         combined_mask = cv2.add(image, mask_image)
-        cv2.write(output_path, combined_mask)
+        cv2.imwrite(output_path, combined_mask)
 
         return output_path
