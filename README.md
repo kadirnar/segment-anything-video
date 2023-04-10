@@ -49,9 +49,9 @@ autoseg_video = SegAutoMaskPredictor().save_video(
 seg_manual_mask_generator = SegManualMaskPredictor().save_image(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
-    input_point=[[100, 100], [200, 200]]
-    input_label=[0, 1]
-    input_box=[100, 100, 200, 200] # x,y,w,h
+    input_point=[[100, 100], [200, 200]],
+    input_label=[0, 1],
+    input_box=[100, 100, 200, 200], # x,y,w,h
     multimask_output=False,
 
 )
