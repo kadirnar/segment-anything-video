@@ -6,13 +6,15 @@ import torch
 from tqdm import tqdm
 
 from metaseg import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
-from metaseg.utils import download_model, load_image, load_video
+from metaseg.utils import download_model, load_box, load_image, load_mask, load_video, multi_boxes
 
 
 class SegAutoMaskPredictor:
     def __init__(self):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.save = False
+        self.show = False
 
     def load_model(self, model_type):
         if self.model is None:
@@ -22,24 +24,17 @@ class SegAutoMaskPredictor:
 
         return self.model
 
-    def predict(self, frame, model_type, points_per_side, points_per_batch, min_area):
+    def image_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png"):
+        read_image = load_image(source)
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
             model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area
         )
 
-        masks = mask_generator.generate(frame)
+        masks = mask_generator.generate(read_image)
 
-        return frame, masks
-
-    def save_image(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png"):
-        read_image = load_image(source)
-        image, anns = self.predict(read_image, model_type, points_per_side, points_per_batch, min_area)
-        if len(anns) == 0:
-            return
-
-        sorted_anns = sorted(anns, key=(lambda x: x["area"]), reverse=True)
-        mask_image = np.zeros((anns[0]["segmentation"].shape[0], anns[0]["segmentation"].shape[1], 3), dtype=np.uint8)
+        sorted_anns = sorted(masks, key=(lambda x: x["area"]), reverse=True)
+        mask_image = np.zeros((masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 3), dtype=np.uint8)
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
         for i, ann in enumerate(sorted_anns):
             m = ann["segmentation"]
@@ -53,12 +48,18 @@ class SegAutoMaskPredictor:
             img = cv2.addWeighted(img, 0.35, np.zeros_like(img), 0.65, 0)
             mask_image = cv2.add(mask_image, img)
 
-        combined_mask = cv2.add(image, mask_image)
-        cv2.imwrite(output_path, combined_mask)
+        combined_mask = cv2.add(read_image, mask_image)
+        if self.save:
+            cv2.imwrite(output_path, combined_mask)
+
+        if self.show:
+            cv2.imshow("Output", combined_mask)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
         return output_path
 
-    def save_video(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
+    def video_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
         cap, out = load_video(source, output_path)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
@@ -68,18 +69,23 @@ class SegAutoMaskPredictor:
             if not ret:
                 break
 
-            image, anns = self.predict(frame, model_type, points_per_side, points_per_batch, min_area)
-            if len(anns) == 0:
+            model = self.load_model(model_type)
+            mask_generator = SamAutomaticMaskGenerator(
+                model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area
+            )
+            masks = mask_generator.generate(frame)
+
+            if len(masks) == 0:
                 continue
 
-            sorted_anns = sorted(anns, key=(lambda x: x["area"]), reverse=True)
+            sorted_anns = sorted(masks, key=(lambda x: x["area"]), reverse=True)
             mask_image = np.zeros(
-                (anns[0]["segmentation"].shape[0], anns[0]["segmentation"].shape[1], 3), dtype=np.uint8
+                (masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 3), dtype=np.uint8
             )
 
             for i, ann in enumerate(sorted_anns):
                 m = ann["segmentation"]
-                color = colors[i % 256]  # Her nesne için farklı bir renk kullan
+                color = colors[i % 256]
                 img = np.zeros((m.shape[0], m.shape[1], 3), dtype=np.uint8)
                 img[:, :, 0] = color[0]
                 img[:, :, 1] = color[1]
@@ -102,6 +108,8 @@ class SegManualMaskPredictor:
     def __init__(self):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.save = False
+        self.show = False
 
     def load_model(self, model_type):
         if self.model is None:
@@ -111,42 +119,23 @@ class SegManualMaskPredictor:
 
         return self.model
 
-    def load_mask(self, mask, random_color):
-        if random_color:
-            color = np.random.rand(3) * 255
-        else:
-            color = np.array([100, 50, 0])
-
-        h, w = mask.shape[-2:]
-        mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-        mask_image = mask_image.astype(np.uint8)
-        return mask_image
-
-    def load_box(self, box, image):
-        x, y, w, h = int(box[0]), int(box[1]), int(box[2]), int(box[3])
-        cv2.rectangle(image, (x, y), (w, h), (0, 255, 0), 2)
-        return image
-
-    def multi_boxes(self, boxes, predictor, image):
-        input_boxes = torch.tensor(boxes, device=predictor.device)
-        transformed_boxes = predictor.transform.apply_boxes_torch(input_boxes, image.shape[:2])
-        return input_boxes, transformed_boxes
-
-    def predict(
+    def image_predict(
         self,
-        frame,
+        source,
         model_type,
         input_box=None,
         input_point=None,
         input_label=None,
         multimask_output=False,
+        output_path="output.png",
     ):
+        image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)
-        predictor.set_image(frame)
+        predictor.set_image(image)
 
         if type(input_box[0]) == list:
-            input_boxes, new_boxes = self.multi_boxes(input_box, predictor, frame)
+            input_boxes, new_boxes = multi_boxes(input_box, predictor, image)
 
             masks, _, _ = predictor.predict_torch(
                 point_coords=None,
@@ -154,6 +143,11 @@ class SegManualMaskPredictor:
                 boxes=new_boxes,
                 multimask_output=False,
             )
+            for mask in masks:
+                mask_image = load_mask(mask.cpu().numpy(), False)
+
+            for box in input_boxes:
+                image = load_box(box.cpu().numpy(), image)
 
         elif type(input_box[0]) == int:
             input_boxes = np.array(input_box)[None, :]
@@ -164,36 +158,16 @@ class SegManualMaskPredictor:
                 box=input_boxes,
                 multimask_output=multimask_output,
             )
-
-        return frame, masks, input_boxes
-
-    def save_image(
-        self,
-        source,
-        model_type,
-        input_box=None,
-        input_point=None,
-        input_label=None,
-        multimask_output=False,
-        output_path="output.png",
-    ):
-        read_image = load_image(source)
-        image, anns, boxes = self.predict(read_image, model_type, input_box, input_point, input_label, multimask_output)
-        if len(anns) == 0:
-            return
-
-        if type(input_box[0]) == list:
-            for mask in anns:
-                mask_image = self.load_mask(mask.cpu().numpy(), False)
-
-            for box in boxes:
-                image = self.load_box(box.cpu().numpy(), image)
-
-        elif type(input_box[0]) == int:
-            mask_image = self.load_mask(anns, True)
-            image = self.load_box(input_box, image)
+            mask_image = load_mask(masks, True)
+            image = load_box(input_box, image)
 
         combined_mask = cv2.add(image, mask_image)
-        cv2.imwrite(output_path, combined_mask)
+        if self.save:
+            cv2.imwrite(output_path, combined_mask)
+
+        if self.show:
+            cv2.imshow("Output", combined_mask)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
         return output_path
