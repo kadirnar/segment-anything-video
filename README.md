@@ -63,7 +63,7 @@ results = SegManualMaskPredictor().image_predict(
 )
 ```
 
-# SAHI + Segment Anything
+### SAHI + Segment Anything
 
 ```python
 image_path = "test.jpg"
@@ -89,7 +89,7 @@ SahiAutoSegmentation().save_image(
     save=False,
 )
 ```
-<img width="1000" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
+<img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
 # Extra Features
 
