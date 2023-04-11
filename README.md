@@ -66,6 +66,8 @@ results = SegManualMaskPredictor().image_predict(
 ### SAHI + Segment Anything
 
 ```python
+from metaseg import sahi_sliced_predict, SahiAutoSegmentation
+
 image_path = "test.jpg"
 boxes = sahi_sliced_predict(
     image_path=image_path,
@@ -79,7 +81,7 @@ boxes = sahi_sliced_predict(
     overlap_width_ratio=0.2,
 )
 
-SahiAutoSegmentation().save_image(
+SahiAutoSegmentation().predict(
     source=image_path,
     model_type="vit_b",
     input_box=boxes,
