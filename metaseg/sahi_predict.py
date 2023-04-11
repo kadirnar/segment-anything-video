@@ -76,7 +76,7 @@ class SahiAutoSegmentation:
         save=False,
         show=True,
     ):
-        
+
         read_image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)

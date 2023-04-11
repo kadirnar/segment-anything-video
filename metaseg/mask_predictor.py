@@ -6,7 +6,16 @@ import torch
 from tqdm import tqdm
 
 from metaseg import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
-from metaseg.utils import download_model, load_box, load_image, load_mask, load_video, multi_boxes,show_image, save_image
+from metaseg.utils import (
+    download_model,
+    load_box,
+    load_image,
+    load_mask,
+    load_video,
+    multi_boxes,
+    save_image,
+    show_image,
+)
 
 
 class SegAutoMaskPredictor:
@@ -22,7 +31,17 @@ class SegAutoMaskPredictor:
 
         return self.model
 
-    def image_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png", show=False, save=False):
+    def image_predict(
+        self,
+        source,
+        model_type,
+        points_per_side,
+        points_per_batch,
+        min_area,
+        output_path="output.png",
+        show=False,
+        save=False,
+    ):
         read_image = load_image(source)
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
@@ -50,12 +69,11 @@ class SegAutoMaskPredictor:
         self.combined_mask = combined_mask
         if show:
             show_image(combined_mask)
-            
+
         if save:
             save_image(output_path=output_path, image=combined_mask)
-        
+
         return masks
-    
 
     def video_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
         cap, out = load_video(source, output_path)
