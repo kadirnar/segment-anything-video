@@ -26,48 +26,71 @@ from metaseg import SegAutoMaskPredictor, SegManualMaskPredictor
 
 # For image
 
-autoseg_image = SegAutoMaskPredictor().image_predict(
+results = SegAutoMaskPredictor().image_predict(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
     points_per_side=16, 
     points_per_batch=64,
     min_area=0,
+    output_path="output.jpg",
+    show=True,
+    save=False,
 )
 
 # For video
 
-autoseg_video = SegAutoMaskPredictor().video_predict(
+results = SegAutoMaskPredictor().video_predict(
     source="video.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
     points_per_side=16, 
     points_per_batch=64,
     min_area=1000,
+    output_path="output.mp4",
 )
 
 # For manuel box and point selection
 
-seg_manual_mask_generator = SegManualMaskPredictor().image_predict(
+results = SegManualMaskPredictor().image_predict(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
     input_point=[[100, 100], [200, 200]],
     input_label=[0, 1],
-    input_box=[100, 100, 200, 200], # x,y,w,h
+    input_box=[100, 100, 200, 200], # or [[100, 100, 200, 200], [100, 100, 200, 200]]
     multimask_output=False,
-
-)
-
-# For multi box selection
-
-seg_manual_mask_generator = SegManualMaskPredictor().image_predict(
-    source="data/brain.png",
-    model_type="vit_l",
-    input_point=None,
-    input_label=None,
-    input_box= [[100, 100, 400, 400]],
-    multimask_output=False,
-
+    random_color=False,
+    show=True,
+    save=False,
 )
 ```
+
+# SAHI + Segment Anything
+
+```python
+image_path = "test.jpg"
+boxes = sahi_sliced_predict(
+    image_path=image_path,
+    detection_model_type="yolov5", #yolov8, detectron2, mmdetection, torchvision
+    detection_model_path="yolov5l6.pt",
+    conf_th=0.25,
+    image_size=1280,
+    slice_height=256,
+    slice_width=256,
+    overlap_height_ratio=0.2,
+    overlap_width_ratio=0.2,
+)
+
+SahiAutoSegmentation().save_image(
+    source=image_path,
+    model_type="vit_b",
+    input_box=boxes,
+    multimask_output=False,
+    random_color=False,
+    show=True,
+    save=False,
+)
+```
+<img width="1000" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
+
 # Extra Features
 
 - [x] Support for Yolov5/8, Detectron2, Mmdetection, Torchvision models

@@ -6,7 +6,7 @@ from metaseg import SamPredictor, sam_model_registry
 from metaseg.utils import download_model, load_image, multi_boxes, plt_load_box, plt_load_mask
 
 
-def sahi_predict(
+def sahi_sliced_predict(
     image_path,
     detection_model_type,
     detection_model_path,
@@ -51,7 +51,7 @@ def sahi_predict(
     return boxes
 
 
-class SahiPredictor:
+class SahiAutoSegmentation:
     def __init__(self):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -62,7 +62,9 @@ class SahiPredictor:
             self.model = sam_model_registry[model_type](checkpoint=self.model_path)
             self.model.to(device=self.device)
 
-    def save_image(
+        return self.model
+
+    def predict(
         self,
         source,
         model_type,
@@ -70,7 +72,11 @@ class SahiPredictor:
         input_point=None,
         input_label=None,
         multimask_output=False,
+        random_color=False,
+        save=False,
+        show=True,
     ):
+        
         read_image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)
@@ -99,8 +105,11 @@ class SahiPredictor:
         plt.figure(figsize=(10, 10))
         plt.imshow(read_image)
         for mask in masks:
-            plt_load_mask(mask.cpu().numpy(), plt.gca(), random_color=True)
+            plt_load_mask(mask.cpu().numpy(), plt.gca(), random_color=random_color)
         for box in input_boxes:
             plt_load_box(box.cpu().numpy(), plt.gca())
         plt.axis("off")
-        plt.show()
+        if save:
+            plt.savefig("output.png")
+        if show:
+            plt.show()
