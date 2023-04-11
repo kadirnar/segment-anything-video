@@ -75,3 +75,14 @@ def multi_boxes(boxes, predictor, image):
     input_boxes = torch.tensor(boxes, device=predictor.device)
     transformed_boxes = predictor.transform.apply_boxes_torch(input_boxes, image.shape[:2])
     return input_boxes, transformed_boxes
+
+def show_image(output_image):
+    import cv2
+    
+    cv2.imshow("output", output_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+def save_image(output_image, output_path):
+    import cv2
+    cv2.imwrite(output_path, output_image)

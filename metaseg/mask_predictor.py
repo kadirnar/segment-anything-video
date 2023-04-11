@@ -6,15 +6,13 @@ import torch
 from tqdm import tqdm
 
 from metaseg import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
-from metaseg.utils import download_model, load_box, load_image, load_mask, load_video, multi_boxes
+from metaseg.utils import download_model, load_box, load_image, load_mask, load_video, multi_boxes,show_image, save_image
 
 
 class SegAutoMaskPredictor:
     def __init__(self):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.save = False
-        self.show = False
 
     def load_model(self, model_type):
         if self.model is None:
@@ -24,7 +22,7 @@ class SegAutoMaskPredictor:
 
         return self.model
 
-    def image_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png"):
+    def image_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.png", show=False, save=False):
         read_image = load_image(source)
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
@@ -49,15 +47,15 @@ class SegAutoMaskPredictor:
             mask_image = cv2.add(mask_image, img)
 
         combined_mask = cv2.add(read_image, mask_image)
-        if self.save:
-            cv2.imwrite(output_path, combined_mask)
-
-        if self.show:
-            cv2.imshow("Output", combined_mask)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-
-        return output_path
+        self.combined_mask = combined_mask
+        if show:
+            show_image(combined_mask)
+            
+        if save:
+            save_image(output_path=output_path, image=combined_mask)
+        
+        return masks
+    
 
     def video_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
         cap, out = load_video(source, output_path)
@@ -128,6 +126,9 @@ class SegManualMaskPredictor:
         input_label=None,
         multimask_output=False,
         output_path="output.png",
+        random_color=False,
+        show=False,
+        save=False,
     ):
         image = load_image(source)
         model = self.load_model(model_type)
@@ -144,7 +145,7 @@ class SegManualMaskPredictor:
                 multimask_output=False,
             )
             for mask in masks:
-                mask_image = load_mask(mask.cpu().numpy(), False)
+                mask_image = load_mask(mask.cpu().numpy(), random_color)
 
             for box in input_boxes:
                 image = load_box(box.cpu().numpy(), image)
@@ -158,16 +159,14 @@ class SegManualMaskPredictor:
                 box=input_boxes,
                 multimask_output=multimask_output,
             )
-            mask_image = load_mask(masks, True)
+            mask_image = load_mask(masks, random_color)
             image = load_box(input_box, image)
 
         combined_mask = cv2.add(image, mask_image)
-        if self.save:
-            cv2.imwrite(output_path, combined_mask)
+        if save:
+            save_image(output_path=output_path, image=combined_mask)
 
-        if self.show:
-            cv2.imshow("Output", combined_mask)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+        if show:
+            show_image(combined_mask)
 
-        return output_path
+        return masks
