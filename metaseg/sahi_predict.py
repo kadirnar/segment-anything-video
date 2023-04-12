@@ -1,6 +1,8 @@
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from PIL import Image
 
 from metaseg import SamPredictor, sam_model_registry
 from metaseg.utils import download_model, load_image, multi_boxes, plt_load_box, plt_load_mask
@@ -110,7 +112,10 @@ class SahiAutoSegmentation:
             plt_load_box(box.cpu().numpy(), plt.gca())
         plt.axis("off")
         if save:
-            plt.savefig("output.png")
+            plt.savefig("output.png", bbox_inches="tight")
+            output_image = cv2.imread("output.png")
+            output_image = Image.fromarray(output_image)
+            return output_image
         if show:
             plt.show()
 
