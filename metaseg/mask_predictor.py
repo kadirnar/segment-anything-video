@@ -71,7 +71,7 @@ class SegAutoMaskPredictor:
             show_image(combined_mask)
 
         if save:
-            save_image(output_path=output_path, image=combined_mask)
+            save_image(output_path=output_path, output_image=combined_mask)
 
         return masks
 
@@ -180,7 +180,7 @@ class SegManualMaskPredictor:
 
         combined_mask = cv2.add(image, mask_image)
         if save:
-            save_image(output_path=output_path, image=combined_mask)
+            save_image(output_path=output_path, output_image=combined_mask)
 
         if show:
             show_image(combined_mask)
