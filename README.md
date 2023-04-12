@@ -50,6 +50,7 @@ results = SegAutoMaskPredictor().video_predict(
 
 # For manuel box and point selection
 
+# For image
 results = SegManualMaskPredictor().image_predict(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
@@ -61,6 +62,20 @@ results = SegManualMaskPredictor().image_predict(
     show=True,
     save=False,
 )
+
+# For video
+
+results = SegManualMaskPredictor().video_predict(
+    source="test.mp4",
+    model_type="vit_l", # vit_l, vit_h, vit_b
+    input_point=[0, 0, 100, 100]
+    input_label=N
+    input_box=None,
+    multimask_output=False,
+    random_color=False,
+    output_path="output.mp4",
+)
+```
 ```
 
 ### SAHI + Segment Anything
