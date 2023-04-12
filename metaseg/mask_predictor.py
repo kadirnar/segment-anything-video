@@ -186,3 +186,87 @@ class SegManualMaskPredictor:
             show_image(combined_mask)
 
         return masks
+
+    def video_predict(
+        self,
+        source,
+        model_type,
+        input_box=None,
+        input_point=None,
+        input_label=None,
+        multimask_output=False,
+        output_path="output.mp4",
+        random_color=False,
+    ):
+        cap, out = load_video(source, output_path)
+        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        for _ in tqdm(range(length)):
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            model = self.load_model(model_type)
+            predictor = SamPredictor(model)
+            predictor.set_image(frame)
+
+            if type(input_box[0]) == list:
+                input_boxes, new_boxes = multi_boxes(input_box, predictor, frame)
+
+                masks, _, _ = predictor.predict_torch(
+                    point_coords=None,
+                    point_labels=None,
+                    boxes=new_boxes,
+                    multimask_output=False,
+                )
+                for mask in masks:
+                    mask_image = load_mask(mask.cpu().numpy(), random_color)
+
+                for box in input_boxes:
+                    frame = load_box(box.cpu().numpy(), frame)
+
+            elif type(input_box[0]) == int:
+                input_boxes = np.array(input_box)[None, :]
+
+                masks, _, _ = predictor.predict(
+                    point_coords=input_point,
+                    point_labels=input_label,
+                    box=input_boxes,
+                    multimask_output=multimask_output,
+                )
+                mask_image = load_mask(masks, random_color)
+                frame = load_box(input_box, frame)
+
+            combined_mask = cv2.add(frame, mask_image)
+            out.write(combined_mask)
+
+        out.release()
+        cap.release()
+        cv2.destroyAllWindows()
+        return output_path
+    
+if __name__ == "__main__":
+    # video
+    source = "test.mp4"
+    model_type = "sam_resnet50d_ade20k"
+    input_box = [0, 0, 100, 100]
+    input_point = None
+    input_label = None
+    multimask_output = False
+    output_path = "output.mp4"
+    random_color = False
+    show = False
+    save = True
+
+    # video
+    predictor = SegManualMaskPredictor()
+    predictor.video_predict(
+        source,
+        model_type,
+        input_box,
+        input_point,
+        input_label,
+        multimask_output,
+        output_path,
+        random_color,
+    )
