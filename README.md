@@ -76,7 +76,6 @@ results = SegManualMaskPredictor().video_predict(
     output_path="output.mp4",
 )
 ```
-```
 
 ### SAHI + Segment Anything
 
@@ -106,6 +105,7 @@ SahiAutoSegmentation().predict(
     save=False,
 )
 ```
+
 <img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
 # Extra Features
