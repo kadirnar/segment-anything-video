@@ -124,8 +124,6 @@ class SegManualMaskPredictor:
     def __init__(self):
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.save = False
-        self.show = False
 
     def load_model(self, model_type):
         if self.model is None:
