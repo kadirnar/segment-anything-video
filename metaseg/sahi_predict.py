@@ -73,8 +73,8 @@ class SahiAutoSegmentation:
         input_label=None,
         multimask_output=False,
         random_color=False,
+        show=False,
         save=False,
-        show=True,
     ):
 
         read_image = load_image(source)
@@ -113,3 +113,5 @@ class SahiAutoSegmentation:
             plt.savefig("output.png")
         if show:
             plt.show()
+
+        return masks
