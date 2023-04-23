@@ -29,7 +29,7 @@ def automask_image(data, model_type="vit_b", points_per_side=16, points_per_batc
 
     return result
 
-
+@isolated(requirements=["metaseg"], keep_alive=1800, machine_type="GPU-T4")
 def manuelmask_image(
     data,
     model_type="vit_b",
