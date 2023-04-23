@@ -244,30 +244,3 @@ class SegManualMaskPredictor:
         cap.release()
         cv2.destroyAllWindows()
         return output_path
-
-
-if __name__ == "__main__":
-    # video
-    source = "test.mp4"
-    model_type = "sam_resnet50d_ade20k"
-    input_box = [0, 0, 100, 100]
-    input_point = None
-    input_label = None
-    multimask_output = False
-    output_path = "output.mp4"
-    random_color = False
-    show = False
-    save = True
-
-    # video
-    predictor = SegManualMaskPredictor()
-    predictor.video_predict(
-        source,
-        model_type,
-        input_box,
-        input_point,
-        input_label,
-        multimask_output,
-        output_path,
-        random_color,
-    )
