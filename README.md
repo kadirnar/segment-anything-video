@@ -110,9 +110,9 @@ SahiAutoSegmentation().predict(
 ### FalAI(Cloud GPU) + Segment Anything
 ```python
 
-from metaseg import falai_automask
+from metaseg import falai_automask_image
 
-image = falai_automask(
+image = falai_automask_image(
     image_path="data.jpg",
     model_type="vit_b",
     points_per_side=16,

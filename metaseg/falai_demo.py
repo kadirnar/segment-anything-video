@@ -13,7 +13,7 @@ except ImportError:
 
 
 @isolated(requirements=["metaseg"], keep_alive=1800, machine_type="GPU-T4")
-def automask_server(data, model_type="vit_b", points_per_side=16, points_per_batch=32, min_area=0):
+def automask_image(data, model_type="vit_b", points_per_side=16, points_per_batch=32, min_area=0):
     image_path, output_path = load_server_image(data)
     SegAutoMaskPredictor().image_predict(
         source=image_path,
@@ -31,11 +31,11 @@ def automask_server(data, model_type="vit_b", points_per_side=16, points_per_bat
     return result
 
 
-def falai_automask(image_path, model_type="vit_b", points_per_side=16, points_per_batch=32, min_area=0):
+def falai_automask_image(image_path, model_type="vit_b", points_per_side=16, points_per_batch=32, min_area=0):
     with open(image_path, "rb") as f:
         data = f.read()
 
-    image = falai_automask(
+    image = automask_image(
         data=data,
         model_type=model_type,
         points_per_side=points_per_side,

@@ -11,4 +11,6 @@ from metaseg.generator.predictor import SamPredictor
 from metaseg.mask_predictor import SegAutoMaskPredictor, SegManualMaskPredictor
 from metaseg.sahi_predict import SahiAutoSegmentation, sahi_sliced_predict
 
+from metaseg.falai_demo import falai_automask_image
+
 __version__ = "0.6.2"
