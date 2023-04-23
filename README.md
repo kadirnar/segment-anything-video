@@ -25,7 +25,6 @@ from metaseg import SegAutoMaskPredictor, SegManualMaskPredictor
 # If gpu memory is not enough, reduce the points_per_side and points_per_batch.
 
 # For image
-
 results = SegAutoMaskPredictor().image_predict(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
@@ -38,7 +37,6 @@ results = SegAutoMaskPredictor().image_predict(
 )
 
 # For video
-
 results = SegAutoMaskPredictor().video_predict(
     source="video.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
@@ -77,7 +75,7 @@ results = SegManualMaskPredictor().video_predict(
 )
 ```
 
-### SAHI + Segment Anything
+### [SAHI](https://github.com/obss/sahi) + Segment Anything
 
 ```python
 from metaseg import sahi_sliced_predict, SahiAutoSegmentation
@@ -107,9 +105,7 @@ SahiAutoSegmentation().predict(
 ```
 <img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
-### FalAI(Cloud GPU) + Segment Anything
-
-##### Install falai
+### [FalAI(Cloud GPU)](https://docs.fal.ai/fal-serverless/quickstart) + Segment Anything
 ```bash
 pip install fal_serverless
 ```
