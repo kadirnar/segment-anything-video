@@ -69,7 +69,7 @@ results = SegManualMaskPredictor().video_predict(
     source="test.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
     input_point=[0, 0, 100, 100]
-    input_label=N
+    input_label=[0, 1],
     input_box=None,
     multimask_output=False,
     random_color=False,
@@ -108,8 +108,14 @@ SahiAutoSegmentation().predict(
 <img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
 ### FalAI(Cloud GPU) + Segment Anything
-```python
 
+##### Install falai
+```bash
+pip install fal_serverless
+```
+
+```python
+# For Auto Mask
 from metaseg import falai_automask_image
 
 image = falai_automask_image(
@@ -119,6 +125,21 @@ image = falai_automask_image(
     points_per_batch=32,
     min_area=0,
 )   
+image.show() # Show image
+image.save("output.jpg") # Save image
+
+# For Manual Mask
+from metaseg import falai_manualmask_image
+
+image = falai_manualmask_image(
+    image_path="data.jpg",
+    model_type="vit_b",
+    input_point=[[100, 100], [200, 200]],
+    input_label=[0, 1],
+    input_box=[100, 100, 200, 200], # or [[100, 100, 200, 200], [100, 100, 200, 200]]
+    multimask_output=False,
+    random_color=False,
+)
 image.show() # Show image
 image.save("output.jpg") # Save image
 ```
