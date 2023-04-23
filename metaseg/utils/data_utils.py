@@ -6,6 +6,25 @@ def load_image(image_path):
     return image
 
 
+def load_server_image(image_path):
+    import os
+    from io import BytesIO
+    from uuid import uuid4
+
+    from PIL import Image
+
+    imagedir = str(uuid4())
+    os.system(f"mkdir -p {imagedir}")
+    image = Image.open(BytesIO(image_path))
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+
+    image_path = f"{imagedir}/base_image_v0.png"
+    output_path = f"{imagedir}/output_v0.png"
+    image.save(image_path, format="PNG")
+    return image_path, output_path
+
+
 def load_video(video_path, output_path="output.mp4"):
     import cv2
 

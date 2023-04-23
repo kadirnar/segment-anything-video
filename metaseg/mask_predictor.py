@@ -244,7 +244,8 @@ class SegManualMaskPredictor:
         cap.release()
         cv2.destroyAllWindows()
         return output_path
-    
+
+
 if __name__ == "__main__":
     # video
     source = "test.mp4"
