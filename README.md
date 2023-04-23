@@ -105,6 +105,7 @@ SahiAutoSegmentation().predict(
     save=False,
 )
 ```
+<img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
 ### FalAI(Cloud GPU) + Segment Anything
 ```python
@@ -121,9 +122,6 @@ image = falai_automask(
 image.show() # Show image
 image.save("output.jpg") # Save image
 ```
-
-<img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
-
 # Extra Features
 
 - [x] Support for Yolov5/8, Detectron2, Mmdetection, Torchvision models
