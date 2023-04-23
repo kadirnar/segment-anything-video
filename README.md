@@ -106,6 +106,22 @@ SahiAutoSegmentation().predict(
 )
 ```
 
+### FalAI(Cloud GPU) + Segment Anything
+```python
+
+from metaseg import falai_automask
+
+image = falai_automask(
+    image_path="data.jpg",
+    model_type="vit_b",
+    points_per_side=16,
+    points_per_batch=32,
+    min_area=0,
+)   
+image.show() # Show image
+image.save("output.jpg") # Save image
+```
+
 <img width="700" alt="teaser" src="https://github.com/kadirnar/segment-anything-pip/releases/download/v0.5.0/sahi_autoseg.png">
 
 # Extra Features
@@ -115,3 +131,4 @@ SahiAutoSegmentation().predict(
 - [x] Support for manual single multi box and point selection
 - [x] Support for pip installation
 - [x] Support for SAHI library
+- [x] Support for FalAI
