@@ -108,6 +108,7 @@ SahiAutoSegmentation().predict(
 ### [FalAI(Cloud GPU)](https://docs.fal.ai/fal-serverless/quickstart) + Segment Anything
 ```bash
 pip install fal_serverless
+fal-serverless auth login
 ```
 
 ```python
