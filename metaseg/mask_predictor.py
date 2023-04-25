@@ -5,7 +5,10 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from metaseg import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
+from metaseg.generator.automatic_mask_generator import SamAutomaticMaskGenerator
+from metaseg.generator.predictor import SamPredictor
+from metaseg.generator.build_sam import sam_model_registry
+
 from metaseg.utils import (
     download_model,
     load_box,
