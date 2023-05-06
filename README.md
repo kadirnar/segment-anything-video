@@ -78,7 +78,7 @@ results = SegManualMaskPredictor().video_predict(
 ### [SAHI](https://github.com/obss/sahi) + Segment Anything
 
 ```python
-from metaseg import sahi_sliced_predict, SahiAutoSegmentation
+from metaseg.sahi_predict import SahiAutoSegmentation, sahi_sliced_predict
 
 image_path = "test.jpg"
 boxes = sahi_sliced_predict(
@@ -126,7 +126,7 @@ image.show() # Show image
 image.save("output.jpg") # Save image
 
 # For Manual Mask
-from metaseg import falai_manualmask_image
+from metaseg.falai_demo import falai_automask_image, falai_manuelmask_image
 
 image = falai_manualmask_image(
     image_path="data.jpg",
