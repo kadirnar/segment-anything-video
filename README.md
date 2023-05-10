@@ -66,7 +66,7 @@ results = SegManualMaskPredictor().image_predict(
 results = SegManualMaskPredictor().video_predict(
     source="test.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
-    input_point=[0, 0, 100, 100]
+    input_point=[0, 0, 100, 100],
     input_label=[0, 1],
     input_box=None,
     multimask_output=False,
@@ -133,7 +133,7 @@ image = falai_manualmask_image(
     model_type="vit_b",
     input_point=[[100, 100], [200, 200]],
     input_label=[0, 1],
-    input_box=[100, 100, 200, 200], # or [[100, 100, 200, 200], [100, 100, 200, 200]]
+    input_box=[100, 100, 200, 200], # or [[100, 100, 200, 200], [100, 100, 200, 200]],
     multimask_output=False,
     random_color=False,
 )
