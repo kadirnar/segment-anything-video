@@ -9,7 +9,7 @@ import json
 import os
 from typing import Any, Dict, List
 
-import cv2  # type: ignore
+import cv2
 
 from metaseg.generator import SamAutomaticMaskGenerator, sam_model_registry
 
