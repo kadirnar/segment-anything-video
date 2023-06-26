@@ -8,6 +8,7 @@ from .data_utils import load_box as load_box
 from .data_utils import load_image as load_image
 from .data_utils import load_mask as load_mask
 from .data_utils import load_server_image as load_server_image
+from .data_utils import load_video as load_video
 from .data_utils import multi_boxes as multi_boxes
 from .data_utils import plt_load_box as plt_load_box
 from .data_utils import plt_load_mask as plt_load_mask
