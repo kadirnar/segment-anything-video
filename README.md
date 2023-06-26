@@ -77,6 +77,10 @@ results = SegManualMaskPredictor().video_predict(
 
 ### [SAHI](https://github.com/obss/sahi) + Segment Anything
 
+```bash
+pip install sahi metaseg
+```
+
 ```python
 from metaseg.sahi_predict import SahiAutoSegmentation, sahi_sliced_predict
 
@@ -107,7 +111,7 @@ SahiAutoSegmentation().predict(
 
 ### [FalAI(Cloud GPU)](https://docs.fal.ai/fal-serverless/quickstart) + Segment Anything
 ```bash
-pip install fal_serverless
+pip install metaseg fal_serverless
 fal-serverless auth login
 ```
 
