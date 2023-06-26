@@ -32,6 +32,8 @@ tqdm = "^4.65.0"
 matplotlib = "^3.7.1"
 pillow = "^9.5.0"
 pycocotools = "^2.0.6"
+onnx = "^1.14.0"
+onnxruntime = "^1.15.1"
 
 
 
