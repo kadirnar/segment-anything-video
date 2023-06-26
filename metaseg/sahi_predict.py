@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from metaseg import SamPredictor, sam_model_registry
+from metaseg.generator import SamPredictor, sam_model_registry
 from metaseg.utils import (
     download_model,
     load_image,

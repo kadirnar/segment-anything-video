@@ -34,6 +34,7 @@ pillow = "^9.5.0"
 pycocotools = "^2.0.6"
 onnx = "^1.14.0"
 onnxruntime = "^1.15.1"
+fal-serverless = "^0.6.35"
 
 
 

@@ -8,16 +8,12 @@ import argparse
 import warnings
 
 import torch
+from onnxruntime import InferenceSession
+from onnxruntime.quantization import QuantType
+from onnxruntime.quantization.quantize import quantize_dynamic
 
-from metaseg import build_sam, build_sam_vit_b, build_sam_vit_l
+from metaseg.generator import build_sam, build_sam_vit_b, build_sam_vit_l
 from metaseg.utils.onnx import SamOnnxModel
-
-try:
-    import onnxruntime  # type: ignore
-
-    onnxruntime_exists = True
-except ImportError:
-    onnxruntime_exists = False
 
 parser = argparse.ArgumentParser(
     description="Export the SAM prompt encoder and mask decoder to an ONNX model."
@@ -169,11 +165,10 @@ def run_export(
                 dynamic_axes=dynamic_axes,
             )
 
-    if onnxruntime_exists:
-        ort_inputs = {k: to_numpy(v) for k, v in dummy_inputs.items()}
-        ort_session = onnxruntime.InferenceSession(output)
-        _ = ort_session.run(None, ort_inputs)
-        print("Model has successfully been run with ONNXRuntime.")
+    ort_inputs = {k: to_numpy(v) for k, v in dummy_inputs.items()}
+    ort_session = InferenceSession(output)
+    _ = ort_session.run(None, ort_inputs)
+    print("Model has successfully been run with ONNXRuntime.")
 
 
 def to_numpy(tensor):
@@ -193,18 +188,13 @@ if __name__ == "__main__":
         return_extra_metrics=args.return_extra_metrics,
     )
 
-    if args.quantize_out is not None:
-        assert onnxruntime_exists, "onnxruntime is required to quantize the model."
-        from onnxruntime.quantization import QuantType  # type: ignore
-        from onnxruntime.quantization.quantize import quantize_dynamic  # type: ignore
-
-        print(f"Quantizing model and writing to {args.quantize_out}...")
-        quantize_dynamic(
-            model_input=args.output,
-            model_output=args.quantize_out,
-            optimize_model=True,
-            per_channel=False,
-            reduce_range=False,
-            weight_type=QuantType.QUInt8,
-        )
-        print("Done!")
+    print(f"Quantizing model and writing to {args.quantize_out}...")
+    quantize_dynamic(
+        model_input=args.output,
+        model_output=args.quantize_out,
+        optimize_model=True,
+        per_channel=False,
+        reduce_range=False,
+        weight_type=QuantType.QUInt8,
+    )
+    print("Done!")
