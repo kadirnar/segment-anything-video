@@ -28,7 +28,7 @@ from metaseg import SegAutoMaskPredictor, SegManualMaskPredictor
 results = SegAutoMaskPredictor().image_predict(
     source="image.jpg",
     model_type="vit_l", # vit_l, vit_h, vit_b
-    points_per_side=16, 
+    points_per_side=16,
     points_per_batch=64,
     min_area=0,
     output_path="output.jpg",
@@ -40,7 +40,7 @@ results = SegAutoMaskPredictor().image_predict(
 results = SegAutoMaskPredictor().video_predict(
     source="video.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
-    points_per_side=16, 
+    points_per_side=16,
     points_per_batch=64,
     min_area=1000,
     output_path="output.mp4",
@@ -121,7 +121,7 @@ image = falai_automask_image(
     points_per_side=16,
     points_per_batch=32,
     min_area=0,
-)   
+)
 image.show() # Show image
 image.save("output.jpg") # Save image
 

@@ -1,14 +1,11 @@
-from typing import Any, Dict, List, Optional
-
 import cv2
 import numpy as np
 import torch
 from tqdm import tqdm
 
 from metaseg.generator.automatic_mask_generator import SamAutomaticMaskGenerator
-from metaseg.generator.predictor import SamPredictor
 from metaseg.generator.build_sam import sam_model_registry
-
+from metaseg.generator.predictor import SamPredictor
 from metaseg.utils import (
     download_model,
     load_box,
@@ -48,13 +45,19 @@ class SegAutoMaskPredictor:
         read_image = load_image(source)
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
-            model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area
+            model,
+            points_per_side=points_per_side,
+            points_per_batch=points_per_batch,
+            min_mask_region_area=min_area,
         )
 
         masks = mask_generator.generate(read_image)
 
         sorted_anns = sorted(masks, key=(lambda x: x["area"]), reverse=True)
-        mask_image = np.zeros((masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 3), dtype=np.uint8)
+        mask_image = np.zeros(
+            (masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 3),
+            dtype=np.uint8,
+        )
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
         for i, ann in enumerate(sorted_anns):
             m = ann["segmentation"]
@@ -78,7 +81,15 @@ class SegAutoMaskPredictor:
 
         return masks
 
-    def video_predict(self, source, model_type, points_per_side, points_per_batch, min_area, output_path="output.mp4"):
+    def video_predict(
+        self,
+        source,
+        model_type,
+        points_per_side,
+        points_per_batch,
+        min_area,
+        output_path="output.mp4",
+    ):
         cap, out = load_video(source, output_path)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
@@ -90,7 +101,10 @@ class SegAutoMaskPredictor:
 
             model = self.load_model(model_type)
             mask_generator = SamAutomaticMaskGenerator(
-                model, points_per_side=points_per_side, points_per_batch=points_per_batch, min_mask_region_area=min_area
+                model,
+                points_per_side=points_per_side,
+                points_per_batch=points_per_batch,
+                min_mask_region_area=min_area,
             )
             masks = mask_generator.generate(frame)
 
@@ -99,7 +113,12 @@ class SegAutoMaskPredictor:
 
             sorted_anns = sorted(masks, key=(lambda x: x["area"]), reverse=True)
             mask_image = np.zeros(
-                (masks[0]["segmentation"].shape[0], masks[0]["segmentation"].shape[1], 3), dtype=np.uint8
+                (
+                    masks[0]["segmentation"].shape[0],
+                    masks[0]["segmentation"].shape[1],
+                    3,
+                ),
+                dtype=np.uint8,
             )
 
             for i, ann in enumerate(sorted_anns):
