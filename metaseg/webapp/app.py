@@ -167,7 +167,12 @@ def sahi_app():
                     with gr.Row():
                         with gr.Column():
                             sahi_model_path = gr.Dropdown(
-                                choices=["yolov5l.pt", "yolov5l6.pt", "yolov8l.pt", "yolov8x.pt"],
+                                choices=[
+                                    "yolov5l.pt",
+                                    "yolov5l6.pt",
+                                    "yolov8l.pt",
+                                    "yolov8x.pt",
+                                ],
                                 value="yolov5l6.pt",
                                 label="Detector Model Path",
                             )

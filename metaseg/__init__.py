@@ -5,11 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 from .falai_demo import automask_image as automask_image
-from .falai_demo import manuelmask_image as manuelmask_image
 from .falai_demo import falai_automask_image as falai_automask_image
 from .falai_demo import falai_manuelmask_image as falai_manuelmask_image
-
-from .sahi_predict import sahi_sliced_predict as sahi_sliced_predict
+from .falai_demo import manuelmask_image as manuelmask_image
 from .sahi_predict import SahiAutoSegmentation as SahiAutoSegmentation
+from .sahi_predict import sahi_sliced_predict as sahi_sliced_predict
 
 __version__ = "0.7.5"

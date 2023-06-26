@@ -5,7 +5,13 @@ import torch
 from PIL import Image
 
 from metaseg import SamPredictor, sam_model_registry
-from metaseg.utils import download_model, load_image, multi_boxes, plt_load_box, plt_load_mask
+from metaseg.utils import (
+    download_model,
+    load_image,
+    multi_boxes,
+    plt_load_box,
+    plt_load_mask,
+)
 
 
 def sahi_sliced_predict(
@@ -19,7 +25,6 @@ def sahi_sliced_predict(
     overlap_height_ratio,
     overlap_width_ratio,
 ):
-
     try:
         from sahi import AutoDetectionModel
         from sahi.predict import get_prediction, get_sliced_prediction
@@ -78,7 +83,6 @@ class SahiAutoSegmentation:
         show=False,
         save=False,
     ):
-
         read_image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)

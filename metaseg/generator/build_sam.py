@@ -8,7 +8,13 @@ from functools import partial
 
 import torch
 
-from metaseg.modeling import ImageEncoderViT, MaskDecoder, PromptEncoder, Sam, TwoWayTransformer
+from metaseg.modeling import (
+    ImageEncoderViT,
+    MaskDecoder,
+    PromptEncoder,
+    Sam,
+    TwoWayTransformer,
+)
 
 
 def build_sam_vit_h(checkpoint=None):
@@ -45,6 +51,13 @@ def build_sam_vit_b(checkpoint=None):
 
 
 build_sam_vit_h = {
+    "default": build_sam,
+    "vit_h": build_sam,
+    "vit_l": build_sam_vit_l,
+    "vit_b": build_sam_vit_b,
+}
+
+sam_model_registry = {
     "default": build_sam,
     "vit_h": build_sam,
     "vit_l": build_sam_vit_l,

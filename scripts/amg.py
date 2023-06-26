@@ -11,8 +11,7 @@ from typing import Any, Dict, List
 
 import cv2  # type: ignore
 
-from metaseg import SamAutomaticMaskGenerator, sam_model_registry
-from metaseg.generator import SamAutomaticMaskGenerator
+from metaseg.generator import SamAutomaticMaskGenerator, sam_model_registry
 
 parser = argparse.ArgumentParser(
     description=(
@@ -34,7 +33,8 @@ parser.add_argument(
     type=str,
     required=True,
     help=(
-        "Path to the directory where masks will be output. Output will be either a folder "
+        "Path to the directory where masks will be output. "
+        "Output will be either a folder "
         "of PNGs per image or a single json with COCO-style masks."
     ),
 )
@@ -53,12 +53,18 @@ parser.add_argument(
     help="The path to the SAM checkpoint to use for mask generation.",
 )
 
-parser.add_argument("--device", type=str, default="cuda", help="The device to run generation on.")
+parser.add_argument(
+    "--device", type=str, default="cuda", help="The device to run generation on."
+)
 
 parser.add_argument(
     "--convert-to-rle",
     action="store_true",
-    help=("Save masks as COCO RLEs in a single json instead of as a folder of PNGs. " "Requires pycocotools."),
+    help=(
+        "Save masks as COCO RLEs in a single json "
+        "instead of as a folder of PNGs. "
+        "Requires pycocotools."
+    ),
 )
 
 amg_settings = parser.add_argument_group("AMG Settings")
@@ -67,35 +73,37 @@ amg_settings.add_argument(
     "--points-per-side",
     type=int,
     default=None,
-    help="Generate masks by sampling a grid over the image with this many points to a side.",
+    help="Generate masks by sampling a grid over "
+    "the image with this many points to a side.",
 )
 
 amg_settings.add_argument(
     "--points-per-batch",
     type=int,
     default=None,
-    help="How many input points to process simultaneously in one batch.",
+    help="How many input points to process " "simultaneously in one batch.",
 )
 
 amg_settings.add_argument(
     "--pred-iou-thresh",
     type=float,
     default=None,
-    help="Exclude masks with a predicted score from the model that is lower than this threshold.",
+    help="Exclude masks with a predicted score from "
+    "the model that is lower than this threshold.",
 )
 
 amg_settings.add_argument(
     "--stability-score-thresh",
     type=float,
     default=None,
-    help="Exclude masks with a stability score lower than this threshold.",
+    help="Exclude masks with a stability " "score lower than this threshold.",
 )
 
 amg_settings.add_argument(
     "--stability-score-offset",
     type=float,
     default=None,
-    help="Larger values perturb the mask more when measuring stability score.",
+    help="Larger values perturb the mask " "more when measuring stability score.",
 )
 
 amg_settings.add_argument(
@@ -110,7 +118,8 @@ amg_settings.add_argument(
     type=int,
     default=None,
     help=(
-        "If >0, mask generation is run on smaller crops of the image to generate more masks. "
+        "If >0, mask generation is run on smaller "
+        "crops of the image to generate more masks. "
         "The value sets how many different scales to crop at."
     ),
 )
@@ -119,7 +128,8 @@ amg_settings.add_argument(
     "--crop-nms-thresh",
     type=float,
     default=None,
-    help="The overlap threshold for excluding duplicate masks across different crops.",
+    help="The overlap threshold for excluding "
+    "duplicate masks across different crops.",
 )
 
 amg_settings.add_argument(
@@ -133,7 +143,8 @@ amg_settings.add_argument(
     "--crop-n-points-downscale-factor",
     type=int,
     default=None,
-    help="The number of points-per-side in each layer of crop is reduced by this factor.",
+    help="The number of points-per-side in each "
+    "layer of crop is reduced by this factor.",
 )
 
 amg_settings.add_argument(
@@ -141,14 +152,20 @@ amg_settings.add_argument(
     type=int,
     default=None,
     help=(
-        "Disconnected mask regions or holes with area smaller than this value "
+        "Disconnected mask regions or holes with "
+        "area smaller than this value "
         "in pixels are removed by postprocessing."
     ),
 )
 
 
 def write_masks_to_folder(masks: List[Dict[str, Any]], path: str) -> None:
-    header = "id,area,bbox_x0,bbox_y0,bbox_w,bbox_h,point_input_x,point_input_y,predicted_iou,stability_score,crop_box_x0,crop_box_y0,crop_box_w,crop_box_h"  # noqa
+    header = (
+        "id,area,bbox_x0,bbox_y0,bbox_w,bbox_h,"
+        "point_input_x,point_input_y,predicted_iou,"
+        "stability_score,crop_box_x0,crop_box_y0,"
+        "crop_box_w,crop_box_h"
+    )
     metadata = [header]
     for i, mask_data in enumerate(masks):
         mask = mask_data["segmentation"]
@@ -201,7 +218,11 @@ def main(args: argparse.Namespace) -> None:
     if not os.path.isdir(args.input):
         targets = [args.input]
     else:
-        targets = [f for f in os.listdir(args.input) if not os.path.isdir(os.path.join(args.input, f))]
+        targets = [
+            f
+            for f in os.listdir(args.input)
+            if not os.path.isdir(os.path.join(args.input, f))
+        ]
         targets = [os.path.join(args.input, f) for f in targets]
 
     os.makedirs(args.output, exist_ok=True)
