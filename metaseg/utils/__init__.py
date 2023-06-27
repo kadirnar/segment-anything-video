@@ -15,6 +15,6 @@ from .data_utils import plt_load_mask as plt_load_mask
 from .data_utils import read_image as read_image
 from .data_utils import save_image as save_image
 from .data_utils import show_image as show_image
-from .file_utils import download_model as download_model
+from .model_file_downloader import download_model as download_model
 from .onnx import SamOnnxModel as SamOnnxModel
 from .transforms import ResizeLongestSide as ResizeLongestSide
