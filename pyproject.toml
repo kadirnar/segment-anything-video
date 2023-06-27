@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaseg"
-version = "0.7.6"
+version = "0.7.7"
 description = "MetaSeg: Packaged version of the Segment Anything repository"
 authors = ["Kadir Nar <kadir.nar@hotmail.com>"]
 maintainers = ["Kadir Nar <kadir.nar@hotmail.com>"]
@@ -49,13 +49,16 @@ pillow = "^9.5.0"
 pycocotools = "^2.0.6"
 fal-serverless = "^0.6.35"
 sahi = "^0.11.14"
+onnx = { version = "^1.14.0", optional = true }
+onnxruntime =  { version ="^1.15.1", optional = true }
+ultralytics = { version = "^8.0.123", optional = true }
+yolov5 = { version ="^7.0.12", optional = true }
 
 
 [tool.poetry.extras]
 full = ["onnxruntime","onnx","yolov5","ultralytics"]
 yolov5 = ["yolov5"]
 yolov8 = ["ultralytics"]
-sahi-full = ["sahi", "yolov5","ultralytics"]
 
 
 [tool.poetry.group.dev.dependencies]
