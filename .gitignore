@@ -128,8 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# .pth files (pytorch)
+# .pth/pt files (pytorch)
 *.pth
+*.pt
 
 # Ignore OSX folder attributes
 .DS_Store
