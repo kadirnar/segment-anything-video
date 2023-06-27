@@ -13,7 +13,6 @@ from metaseg.utils import (
     load_mask,
     load_video,
     multi_boxes,
-    save_image,
     show_image,
 )
 
@@ -77,7 +76,7 @@ class SegAutoMaskPredictor:
             show_image(combined_mask)
 
         if save:
-            save_image(output_path=output_path, output_image=combined_mask)
+            cv2.imwrite(output_path, combined_mask)
 
         return masks
 
@@ -202,7 +201,7 @@ class SegManualMaskPredictor:
 
         combined_mask = cv2.add(image, mask_image)
         if save:
-            save_image(output_path=output_path, output_image=combined_mask)
+            cv2.imwrite(output_path, combined_mask)
 
         if show:
             show_image(combined_mask)
