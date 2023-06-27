@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# .pth files (pytorch)
+*.pth
+
+# Ignore OSX folder attributes
+.DS_Store
+
+# Idea project files
+.idea/
+.idea_modules/
