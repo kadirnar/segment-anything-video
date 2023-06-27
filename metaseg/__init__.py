@@ -10,5 +10,8 @@ from .falai_demo import falai_manuelmask_image as falai_manuelmask_image
 from .falai_demo import manuelmask_image as manuelmask_image
 from .sahi_predict import SahiAutoSegmentation as SahiAutoSegmentation
 from .sahi_predict import sahi_sliced_predict as sahi_sliced_predict
+from .mask_predictor import SegAutoMaskPredictor as SegAutoMaskPredictor
+from .mask_predictor import SegManualMaskPredictor as SegManualMaskPredictor
+
 
 __version__ = "0.7.5"
