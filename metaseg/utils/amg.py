@@ -9,8 +9,10 @@ from copy import deepcopy
 from itertools import product
 from typing import Any, Dict, Generator, ItemsView, List, Tuple
 
+import cv2
 import numpy as np
 import torch
+from pycocotools import mask as mask_utils
 
 
 class MaskData:
@@ -271,7 +273,6 @@ def remove_small_regions(
     Removes small disconnected regions and holes in a mask. Returns the
     mask and an indicator of if the mask has been modified.
     """
-    import cv2  # type: ignore
 
     assert mode in ["holes", "islands"]
     correct_holes = mode == "holes"
@@ -292,8 +293,6 @@ def remove_small_regions(
 
 
 def coco_encode_rle(uncompressed_rle: Dict[str, Any]) -> Dict[str, Any]:
-    from pycocotools import mask as mask_utils  # type: ignore
-
     h, w = uncompressed_rle["size"]
     rle = mask_utils.frPyObjects(uncompressed_rle, h, w)
     rle["counts"] = rle["counts"].decode("utf-8")  # Necessary to serialize with json
