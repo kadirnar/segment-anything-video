@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaseg"
-version = "0.7.5"
+version = "0.7.6"
 description = "MetaSeg: Packaged version of the Segment Anything repository"
 authors = ["Kadir Nar <kadir.nar@hotmail.com>"]
 maintainers = ["Kadir Nar <kadir.nar@hotmail.com>"]
@@ -12,14 +12,29 @@ documentation = "https://github.com/kadirnar/segment-anything-video/blob/main/RE
 keywords = ["pytorch","segment-anything-video","metaseg"]
 license = "Apache-2.0"
 classifiers = [
-    "Development Status :: 5 - Stable",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
 ]
 
 
@@ -32,10 +47,15 @@ tqdm = "^4.65.0"
 matplotlib = "^3.7.1"
 pillow = "^9.5.0"
 pycocotools = "^2.0.6"
-onnx = "^1.14.0"
-onnxruntime = "^1.15.1"
 fal-serverless = "^0.6.35"
+sahi = "^0.11.14"
 
+
+[tool.poetry.extras]
+full = ["onnxruntime","onnx","yolov5","ultralytics"]
+yolov5 = ["yolov5"]
+yolov8 = ["ultralytics"]
+sahi-full = ["sahi", "yolov5","ultralytics"]
 
 
 [tool.poetry.group.dev.dependencies]

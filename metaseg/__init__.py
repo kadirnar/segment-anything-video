@@ -13,4 +13,4 @@ from .mask_predictor import SegManualMaskPredictor as SegManualMaskPredictor
 from .sahi_predict import SahiAutoSegmentation as SahiAutoSegmentation
 from .sahi_predict import sahi_sliced_predict as sahi_sliced_predict
 
-__version__ = "0.7.5"
+__version__ = "0.7.6"
