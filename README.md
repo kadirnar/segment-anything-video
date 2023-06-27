@@ -64,7 +64,7 @@ results = SegManualMaskPredictor().image_predict(
 # For video
 
 results = SegManualMaskPredictor().video_predict(
-    source="test.mp4",
+    source="video.mp4",
     model_type="vit_l", # vit_l, vit_h, vit_b
     input_point=[0, 0, 100, 100],
     input_label=[0, 1],
@@ -84,7 +84,7 @@ pip install sahi metaseg
 ```python
 from metaseg.sahi_predict import SahiAutoSegmentation, sahi_sliced_predict
 
-image_path = "test.jpg"
+image_path = "image.jpg"
 boxes = sahi_sliced_predict(
     image_path=image_path,
     detection_model_type="yolov5", #yolov8, detectron2, mmdetection, torchvision
@@ -120,7 +120,7 @@ fal-serverless auth login
 from metaseg import falai_automask_image
 
 image = falai_automask_image(
-    image_path="data.jpg",
+    image_path="image.jpg",
     model_type="vit_b",
     points_per_side=16,
     points_per_batch=32,
@@ -133,7 +133,7 @@ image.save("output.jpg") # Save image
 from metaseg.falai_demo import falai_automask_image, falai_manuelmask_image
 
 image = falai_manualmask_image(
-    image_path="data.jpg",
+    image_path="image.jpg",
     model_type="vit_b",
     input_point=[[100, 100], [200, 200]],
     input_label=[0, 1],
