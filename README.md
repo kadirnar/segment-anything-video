@@ -130,7 +130,7 @@ image.show() # Show image
 image.save("output.jpg") # Save image
 
 # For Manual Mask
-from metaseg.falai_demo import falai_automask_image, falai_manuelmask_image
+from metaseg.falai_demo import falai_manuelmask_image
 
 image = falai_manualmask_image(
     image_path="image.jpg",
