@@ -23,7 +23,11 @@
 <a href="https://pypi.org/project/metaseg" target="_blank">
     <img src="https://img.shields.io/pypi/status/metaseg?color=orange" alt="Project Status">
 </a>
+<a href="https://results.pre-commit.ci/latest/github/kadirnar/segment-anything-video/main" target="_blank">
+    <img src="https://results.pre-commit.ci/badge/github/kadirnar/segment-anything-video/main.svg" alt="pre-commit.ci">
+</a>
 </p>
+
 
 This repo is a packaged version of the [segment-anything](https://github.com/facebookresearch/segment-anything) model.
 
