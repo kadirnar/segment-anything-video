@@ -96,7 +96,7 @@ def sahi_autoseg_app(
         overlap_width_ratio=overlap_width_ratio,
     )
 
-    SahiAutoSegmentation().predict(
+    SahiAutoSegmentation().image_predict(
         source=image_path,
         model_type=sam_model_type,
         input_box=boxes,

@@ -1,7 +1,10 @@
+from typing import Union
+
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from cv2 import Mat
 from PIL import Image
 
 from metaseg.generator import SamPredictor, sam_model_registry
@@ -71,9 +74,9 @@ class SahiAutoSegmentation:
 
         return self.model
 
-    def predict(
+    def image_predict(
         self,
-        source,
+        source: Union[str, Mat],
         model_type,
         input_box=None,
         input_point=None,

@@ -12,8 +12,6 @@ from .data_utils import load_video as load_video
 from .data_utils import multi_boxes as multi_boxes
 from .data_utils import plt_load_box as plt_load_box
 from .data_utils import plt_load_mask as plt_load_mask
-from .data_utils import read_image as read_image
-from .data_utils import save_image as save_image
 from .data_utils import show_image as show_image
 from .model_file_downloader import download_model as download_model
 from .onnx import SamOnnxModel as SamOnnxModel

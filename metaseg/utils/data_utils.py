@@ -1,18 +1,31 @@
 from io import BytesIO
 from os import system
+from os.path import isfile as isfile
+from typing import Union
 from uuid import uuid4
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from cv2 import Mat
 from PIL import Image
 from torch import tensor
 
 
-def load_image(image_path):
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return image
+def load_image(image: Union[str, Mat]) -> Mat:
+    """
+    Load image from path
+    :param image_path: path to image file or image as Mat or np.ndarray
+    :return: image as Mat
+    """
+    if isfile(image):
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return image
+    elif isinstance(image, Mat) or isinstance(image, np.ndarray):
+        return image
+    else:
+        raise ValueError("image must be a path or cv2.Mat")
 
 
 def load_server_image(image_path):
@@ -36,12 +49,6 @@ def load_video(video_path, output_path="output.mp4"):
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
     return cap, out
-
-
-def read_image(image_path):
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return image
 
 
 def load_mask(mask, random_color):

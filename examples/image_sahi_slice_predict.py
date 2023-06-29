@@ -15,7 +15,7 @@ def main(src: str = "image.png") -> None:
         overlap_width_ratio=0.2,
     )
 
-    SahiAutoSegmentation().predict(
+    SahiAutoSegmentation().image_predict(
         source=img_path,
         model_type="vit_b",
         input_box=boxes,

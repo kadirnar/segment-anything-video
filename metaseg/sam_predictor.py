@@ -1,6 +1,9 @@
+from typing import Union
+
 import cv2
 import numpy as np
 import torch
+from cv2 import Mat
 from tqdm import tqdm
 
 from metaseg.generator.automatic_mask_generator import SamAutomaticMaskGenerator
@@ -32,7 +35,7 @@ class SegAutoMaskPredictor:
 
     def image_predict(
         self,
-        source,
+        source: Union[str, Mat],
         model_type,
         points_per_side,
         points_per_batch,
@@ -156,7 +159,7 @@ class SegManualMaskPredictor:
 
     def image_predict(
         self,
-        source,
+        source: Union[str, Mat],
         model_type,
         input_box=None,
         input_point=None,

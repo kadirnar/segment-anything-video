@@ -1,9 +1,11 @@
 from metaseg import SegAutoMaskPredictor
+from cv2 import Mat
+from cv2 import imread as cv_imread
+from cv2 import cvtColor as cv_cvtColor
+from cv2 import COLOR_BGR2RGB
 
 # If gpu memory is not enough, reduce the points_per_side and points_per_batch.
-
-
-def main(src: str = "image.png") -> None:
+def main(src: Mat) -> None:
     SegAutoMaskPredictor().image_predict(
         source=src,
         model_type="vit_l",  # vit_l, vit_h, vit_b
@@ -17,4 +19,6 @@ def main(src: str = "image.png") -> None:
 
 
 if __name__ == "__main__":
-    main()
+    image = cv_imread("image.png")
+    image = cv_cvtColor(image, COLOR_BGR2RGB)
+    main(image)
