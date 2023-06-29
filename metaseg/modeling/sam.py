@@ -1,10 +1,13 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Metaseg Contributors.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
 
-from typing import Any, Dict, List, Tuple
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
+import logging
+from typing import Any
 
 import torch
 from torch import nn
@@ -14,8 +17,12 @@ from metaseg.modeling.image_encoder import ImageEncoderViT
 from metaseg.modeling.mask_decoder import MaskDecoder
 from metaseg.modeling.prompt_encoder import PromptEncoder
 
+logger = logging.getLogger(__name__)
+
 
 class Sam(nn.Module):
+    """SAM predicts object masks from an image and input prompts."""
+
     mask_threshold: float = 0.0
     image_format: str = "RGB"
 
@@ -24,11 +31,10 @@ class Sam(nn.Module):
         image_encoder: ImageEncoderViT,
         prompt_encoder: PromptEncoder,
         mask_decoder: MaskDecoder,
-        pixel_mean: List[float] = [123.675, 116.28, 103.53],
-        pixel_std: List[float] = [58.395, 57.12, 57.375],
+        pixel_mean: list[float] = [123.675, 116.28, 103.53],
+        pixel_std: list[float] = [58.395, 57.12, 57.375],
     ) -> None:
-        """
-        SAM predicts object masks from an image and input prompts.
+        """SAM predicts object masks from an image and input prompts.
 
         Arguments:
           image_encoder (ImageEncoderViT): The backbone used to encode the
@@ -52,16 +58,17 @@ class Sam(nn.Module):
 
     @property
     def device(self) -> Any:
+        """The device on which the model is stored."""
         return self.pixel_mean.device
 
     @torch.no_grad()
     def forward(
         self,
-        batched_input: List[Dict[str, Any]],
+        batched_input: list[dict[str, Any]],
         multimask_output: bool,
-    ) -> List[Dict[str, torch.Tensor]]:
-        """
-        Predicts masks end-to-end from provided images and prompts.
+    ) -> list[dict[str, torch.Tensor]]:
+        """Predicts masks end-to-end from provided images and prompts.
+
         If prompts are not known in advance, using SamPredictor is
         recommended over calling the model directly.
 
@@ -139,11 +146,10 @@ class Sam(nn.Module):
     def postprocess_masks(
         self,
         masks: torch.Tensor,
-        input_size: Tuple[int, ...],
-        original_size: Tuple[int, ...],
+        input_size: tuple[int, ...],
+        original_size: tuple[int, ...],
     ) -> torch.Tensor:
-        """
-        Remove padding and upscale masks to the original image size.
+        """Remove padding and upscale masks to the original image size.
 
         Arguments:
           masks (torch.Tensor): Batched masks from the mask_decoder,
