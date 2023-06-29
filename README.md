@@ -105,7 +105,7 @@ from metaseg.sahi_predict import SahiAutoSegmentation, sahi_sliced_predict
 image_path = "image.jpg"
 boxes = sahi_sliced_predict(
     image_path=image_path,
-    detection_model_type="yolov5", #yolov8, detectron2, mmdetection, torchvision
+    detection_model_type="yolov5",  # yolov8, detectron2, mmdetection, torchvision
     detection_model_path="yolov5l6.pt",
     conf_th=0.25,
     image_size=1280,
@@ -115,7 +115,7 @@ boxes = sahi_sliced_predict(
     overlap_width_ratio=0.2,
 )
 
-SahiAutoSegmentation().predict(
+SahiAutoSegmentation().image_predict(
     source=image_path,
     model_type="vit_b",
     input_box=boxes,

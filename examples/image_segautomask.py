@@ -3,7 +3,6 @@ from metaseg import SegAutoMaskPredictor
 # If gpu memory is not enough, reduce the points_per_side and points_per_batch.
 
 
-# For image
 def main(src: str = "image.png") -> None:
     SegAutoMaskPredictor().image_predict(
         source=src,
