@@ -1,9 +1,9 @@
 from io import BytesIO
 
 from PIL import Image
-from sam_predictor import SegAutoMaskPredictor, SegManualMaskPredictor
 
-from metaseg.utils.data_utils import load_server_image
+from .sam_predictor import SegAutoMaskPredictor, SegManualMaskPredictor
+from .utils.data_utils import load_server_image
 
 try:
     from fal_serverless import isolated
