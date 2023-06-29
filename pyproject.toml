@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaseg"
-version = "0.7.7"
+version = "0.7.8"
 description = "MetaSeg: Packaged version of the Segment Anything repository"
 authors = ["Kadir Nar <kadir.nar@hotmail.com>"]
 maintainers = ["Kadir Nar <kadir.nar@hotmail.com>"]
