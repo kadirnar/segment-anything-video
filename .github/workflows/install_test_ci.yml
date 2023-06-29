@@ -1,0 +1,75 @@
+---
+name: Install Test Python
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Install_Test_Python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.8", "3.9", "3.10","3.11"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up a virtual environment for Python ${{ matrix.python-version }}
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+             python -m pip install --upgrade virtualenv
+             virtualenv venv
+             source venv/bin/activate
+
+      - name: Install the base dependencies
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+             source venv/bin/activate
+             python -m pip install --upgrade poetry
+
+      - name: Check the correctness of the project config
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+             source venv/bin/activate
+             poetry check
+
+      - name: Install the package
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+             source venv/bin/activate
+             poetry install
+
+
+      - name: Set up a virtual environment
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+             python -m pip install --upgrade virtualenv
+             python -m virtualenv venv
+             .\venv\Scripts\Activate.ps1
+
+      - name: Install the base dependencies
+        shell: pwsh
+        if: matrix.os == 'windows-latest'
+        run: |
+             .\venv\Scripts\Activate.ps1
+             python -m pip install --upgrade poetry
+
+      - name: Check the correctness of the project config
+        shell: pwsh
+        if: matrix.os == 'windows-latest'
+        run: |
+             .\venv\Scripts\Activate.ps1
+             poetry check
+
+      - name: Install the package
+        shell: pwsh
+        if: matrix.os == 'windows-latest'
+        run: |
+             .\venv\Scripts\Activate.ps1
+             poetry install
