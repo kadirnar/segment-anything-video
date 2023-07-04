@@ -1,10 +1,11 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
 
-from typing import Optional, Tuple
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
 
 import numpy as np
 import torch
@@ -12,14 +13,19 @@ import torch
 from metaseg.modeling import Sam
 from metaseg.utils.transforms import ResizeLongestSide
 
+NUM_DIMS = 4
+NUM_CHANNELS = 3
+
 
 class SamPredictor:
+    """Uses SAM to calculate the image embedding for an image."""
+
     def __init__(
         self,
         sam_model: Sam,
     ) -> None:
-        """
-        Uses SAM to calculate the image embedding for an image, and then
+        """Uses SAM to calculate the image embedding for an image, and then.
+
         allow repeated, efficient mask prediction given prompts.
 
         Arguments:
@@ -35,19 +41,20 @@ class SamPredictor:
         image: np.ndarray,
         image_format: str = "RGB",
     ) -> None:
-        """
-        Calculates the image embeddings for the provided image, allowing
+        """Calculates the image embeddings for the provided image, allowing.
+
         masks to be predicted with the 'predict' method.
 
         Arguments:
-          image (np.ndarray): The image for calculating masks. Expects an
-            image in HWC uint8 format, with pixel values in [0, 255].
+          image (np.ndarray): The image for calculating masks.
+              Expects an image in HWC uint8 format,
+              with pixel values in [0, 255].
           image_format (str): The color format of the image, in ['RGB', 'BGR'].
         """
-        assert image_format in [
-            "RGB",
-            "BGR",
-        ], f"image_format must be in ['RGB', 'BGR'], is {image_format}."
+        if image_format not in ["RGB", "BGR"]:
+            raise ValueError(
+                f"image_format must be in ['RGB', 'BGR'], is {image_format}."
+            )
         if image_format != self.model.image_format:
             image = image[..., ::-1]
 
@@ -64,10 +71,10 @@ class SamPredictor:
     def set_torch_image(
         self,
         transformed_image: torch.Tensor,
-        original_image_size: Tuple[int, ...],
+        original_image_size: tuple[int, ...],
     ) -> None:
-        """
-        Calculates the image embeddings for the provided image, allowing
+        """Calculates the image embeddings for the provided image, allowing.
+
         masks to be predicted with the 'predict' method. Expects the input
         image to be already transformed to the format expected by the model.
 
@@ -77,14 +84,16 @@ class SamPredictor:
           original_image_size (tuple(int, int)): The size of the image
             before transformation, in (H, W) format.
         """
-        assert (
-            len(transformed_image.shape) == 4
-            and transformed_image.shape[1] == 3
+        if not (
+            len(transformed_image.shape) == NUM_DIMS
+            and transformed_image.shape[1] == NUM_CHANNELS
             and max(*transformed_image.shape[2:]) == self.model.image_encoder.img_size
-        ), (
-            f"set_torch_image input must be BCHW with long side "
-            f"{self.model.image_encoder.img_size}."
-        )
+        ):
+            raise ValueError(
+                "set_torch_image input must be BCHW with long side %d."
+                % self.model.image_encoder.img_size
+            )
+
         self.reset_image()
 
         self.original_size = original_image_size
@@ -95,15 +104,14 @@ class SamPredictor:
 
     def predict(
         self,
-        point_coords: Optional[np.ndarray] = None,
-        point_labels: Optional[np.ndarray] = None,
-        box: Optional[np.ndarray] = None,
-        mask_input: Optional[np.ndarray] = None,
+        point_coords: np.ndarray | None = None,
+        point_labels: np.ndarray | None = None,
+        box: np.ndarray | None = None,
+        mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
         return_logits: bool = False,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Predict masks for the given input prompts, using the currently set image.
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Predict masks for the given input prompts, using the currently set image.
 
         Arguments:
           point_coords (np.ndarray or None): A Nx2 array of point prompts to the
@@ -141,18 +149,20 @@ class SamPredictor:
 
         # Transform input prompts
         coords_torch, labels_torch, box_torch, mask_input_torch = None, None, None, None
-        if point_coords is not None:
-            assert (
-                point_labels is not None
-            ), "point_labels must be supplied if point_coords is supplied."
-            point_coords = self.transform.apply_coords(point_coords, self.original_size)
-            coords_torch = torch.as_tensor(
-                point_coords, dtype=torch.float, device=self.device
+        if point_coords is not None and point_labels is None:
+            raise ValueError(
+                "point_labels must be supplied if point_coords is supplied."
             )
-            labels_torch = torch.as_tensor(
-                point_labels, dtype=torch.int, device=self.device
-            )
-            coords_torch, labels_torch = coords_torch[None, :, :], labels_torch[None, :]
+
+        point_coords = self.transform.apply_coords(point_coords, self.original_size)
+        coords_torch = torch.as_tensor(
+            point_coords, dtype=torch.float, device=self.device
+        )
+        labels_torch = torch.as_tensor(
+            point_labels, dtype=torch.int, device=self.device
+        )
+
+        coords_torch, labels_torch = coords_torch[None, :, :], labels_torch[None, :]
         if box is not None:
             box = self.transform.apply_boxes(box, self.original_size)
             box_torch = torch.as_tensor(box, dtype=torch.float, device=self.device)
@@ -180,15 +190,15 @@ class SamPredictor:
     @torch.no_grad()
     def predict_torch(
         self,
-        point_coords: Optional[torch.Tensor],
-        point_labels: Optional[torch.Tensor],
-        boxes: Optional[torch.Tensor] = None,
-        mask_input: Optional[torch.Tensor] = None,
+        point_coords: torch.Tensor | None,
+        point_labels: torch.Tensor | None,
+        boxes: torch.Tensor | None = None,
+        mask_input: torch.Tensor | None = None,
         multimask_output: bool = True,
         return_logits: bool = False,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Predict masks for the given input prompts, using the currently set image.
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Predict masks for the given input prompts, using the currently set image.
+
         Input prompts are batched torch tensors and are expected to already be
         transformed to the input frame using ResizeLongestSide.
 
@@ -198,7 +208,7 @@ class SamPredictor:
           point_labels (torch.Tensor or None): A BxN array of labels for the
             point prompts. 1 indicates a foreground point and 0 indicates a
             background point.
-          box (np.ndarray or None): A Bx4 array given a box prompt to the
+          boxes (np.ndarray or None): A Bx4 array given a box prompt to the
             model, in XYXY format.
           mask_input (np.ndarray): A low resolution mask input to the model, typically
             coming from a previous prediction iteration. Has form Bx1xHxW, where
@@ -259,8 +269,8 @@ class SamPredictor:
         return masks, iou_predictions, low_res_masks
 
     def get_image_embedding(self) -> torch.Tensor:
-        """
-        Returns the image embeddings for the currently set image, with
+        """Returns the image embeddings for the currently set image, with.
+
         shape 1xCxHxW, where C is the embedding dimension and (H,W) are
         the embedding spatial dimension of SAM (typically C=256, H=W=64).
         """
@@ -268,13 +278,15 @@ class SamPredictor:
             raise RuntimeError(
                 "An image must be set with .set_image(...) to generate an embedding."
             )
-        assert (
-            self.features is not None
-        ), "Features must exist if an image has been set."
+
+        if self.features is None:
+            raise ValueError("Features must exist if an image has been set.")
+
         return self.features
 
     @property
     def device(self) -> torch.device:
+        """Returns the device that the model is currently on."""
         return self.model.device
 
     def reset_image(self) -> None:

@@ -1,7 +1,15 @@
+"""Copyright (c) Metaseg Contributors.
+
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
+import logging as log
 from io import BytesIO
-from os import system
-from os.path import isfile as isfile
-from typing import Union
+from os import makedirs
+from os.path import exists, isfile
 from uuid import uuid4
 
 import cv2
@@ -11,26 +19,40 @@ from cv2 import Mat
 from PIL import Image
 from torch import tensor
 
+# set the logging level
+log.basicConfig(level=log.INFO)
 
-def load_image(image: Union[str, Mat]) -> Mat:
-    """
-    Load image from path
+
+def load_image(image: str | Mat) -> Mat:
+    """Load image from path.
+
     :param image_path: path to image file or image as Mat or np.ndarray
-    :return: image as Mat
+    :return: image as Mat.
     """
-    if isfile(image):
-        image = cv2.imread(image)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        return image
-    elif isinstance(image, Mat) or isinstance(image, np.ndarray):
+    if isfile(str(image)):
+        img = cv2.imread(str(image))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return img
+    elif isinstance(image, Mat | np.ndarray):
         return image
     else:
         raise ValueError("image must be a path or cv2.Mat")
 
 
 def load_server_image(image_path):
+    """Load image from path and create output image."""
     imagedir = str(uuid4())
-    system(f"mkdir -p {imagedir}")
+    # use try-except block to handle errors
+    try:
+        # create the directory if it doesn't exist
+        if not exists(imagedir):
+            makedirs(imagedir)
+            log.info("Directory '%s' created successfully.", imagedir)
+        else:
+            log.info("Directory '%s' already exists.", imagedir)
+    except OSError as error:
+        log.info("Error creating directory: %s", error)
+
     image = Image.open(BytesIO(image_path))
     if image.mode != "RGB":
         image = image.convert("RGB")
@@ -42,6 +64,7 @@ def load_server_image(image_path):
 
 
 def load_video(video_path, output_path="output.mp4"):
+    """Load video and create output video."""
     cap = cv2.VideoCapture(video_path)
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -52,6 +75,7 @@ def load_video(video_path, output_path="output.mp4"):
 
 
 def load_mask(mask, random_color):
+    """Load mask and create mask image."""
     if random_color:
         color = np.random.rand(3) * 255
     else:
@@ -64,12 +88,14 @@ def load_mask(mask, random_color):
 
 
 def load_box(box, image):
+    """Load box and create box image."""
     x, y, w, h = int(box[0]), int(box[1]), int(box[2]), int(box[3])
     cv2.rectangle(image, (x, y), (w, h), (0, 255, 0), 2)
     return image
 
 
 def plt_load_mask(mask, ax, random_color=False):
+    """Load mask and create mask image for matplotlib."""
     if random_color:
         color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
     else:
@@ -80,6 +106,7 @@ def plt_load_mask(mask, ax, random_color=False):
 
 
 def plt_load_box(box, ax):
+    """Load box and create box image for matplotlib."""
     x0, y0 = box[0], box[1]
     w, h = box[2] - box[0], box[3] - box[1]
     ax.add_patch(
@@ -88,6 +115,7 @@ def plt_load_box(box, ax):
 
 
 def multi_boxes(boxes, predictor, image):
+    """Load boxes and create box image."""
     input_boxes = tensor(boxes, device=predictor.device)
     transformed_boxes = predictor.transform.apply_boxes_torch(
         input_boxes, image.shape[:2]
@@ -96,6 +124,7 @@ def multi_boxes(boxes, predictor, image):
 
 
 def show_image(output_image):
+    """Show image in cv2."""
     cv2.imshow("output", output_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

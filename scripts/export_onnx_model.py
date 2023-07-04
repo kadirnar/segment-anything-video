@@ -1,18 +1,21 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
 
 import argparse
 import warnings
 
 import torch
+from numpy import ndarray
 from onnxruntime import InferenceSession
 from onnxruntime.quantization import QuantType
 from onnxruntime.quantization.quantize import quantize_dynamic
 
-from metaseg.generator import build_sam, build_sam_vit_b, build_sam_vit_l
+from metaseg.generator import build_sam_vit_b, build_sam_vit_h, build_sam_vit_l
 from metaseg.utils.onnx import SamOnnxModel
 
 parser = argparse.ArgumentParser(
@@ -104,13 +107,35 @@ def run_export(
     use_stability_score: bool = False,
     return_extra_metrics=False,
 ):
-    print("Loading model...")
+    """Export a PyTorch model to ONNX format.
+
+    Args:
+        model_type: The type of model to export
+            (e.g. "vit_b", "vit_l", etc.).
+        checkpoint: The path to the PyTorch checkpoint file to
+            load the model weights from.
+        output: The path to save the exported ONNX model to.
+        opset: The ONNX operator set version to use.
+        return_single_mask: Whether to return a single
+            attention mask for all layers.
+        gelu_approximate: Whether to use the approximate GELU function.
+        use_stability_score: Whether to use the stability
+            score to select attention heads.
+        return_extra_metrics: Whether to return extra metrics during export.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If an invalid model type is specified.
+        FileNotFoundError: If the checkpoint file does not exist.
+    """
     if model_type == "vit_b":
         sam = build_sam_vit_b(checkpoint)
     elif model_type == "vit_l":
         sam = build_sam_vit_l(checkpoint)
     else:
-        sam = build_sam(checkpoint)
+        sam = build_sam_vit_h(checkpoint)
 
     onnx_model = SamOnnxModel(
         model=sam,
@@ -151,7 +176,6 @@ def run_export(
         warnings.filterwarnings("ignore", category=torch.jit.TracerWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
         with open(output, "wb") as f:
-            print(f"Exporing onnx model to {output}...")
             torch.onnx.export(
                 onnx_model,
                 tuple(dummy_inputs.values()),
@@ -168,10 +192,22 @@ def run_export(
     ort_inputs = {k: to_numpy(v) for k, v in dummy_inputs.items()}
     ort_session = InferenceSession(output)
     _ = ort_session.run(None, ort_inputs)
-    print("Model has successfully been run with ONNXRuntime.")
 
 
-def to_numpy(tensor):
+def to_numpy(tensor: torch.Tensor) -> ndarray:
+    """Convert a PyTorch tensor to a NumPy array.
+
+    Args:
+        tensor: The PyTorch tensor to convert.
+
+    Returns:
+        The NumPy array representation of the input tensor.
+
+    Raises:
+        TypeError: If the input tensor is not a PyTorch tensor.
+    """
+    if not isinstance(tensor, torch.Tensor):
+        raise TypeError("Input must be a PyTorch tensor.")
     return tensor.cpu().numpy()
 
 
@@ -188,7 +224,6 @@ if __name__ == "__main__":
         return_extra_metrics=args.return_extra_metrics,
     )
 
-    print(f"Quantizing model and writing to {args.quantize_out}...")
     quantize_dynamic(
         model_input=args.output,
         model_output=args.quantize_out,
@@ -197,4 +232,3 @@ if __name__ == "__main__":
         reduce_range=False,
         weight_type=QuantType.QUInt8,
     )
-    print("Done!")

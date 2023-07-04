@@ -1,13 +1,14 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
 
-from typing import Tuple
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 from metaseg.modeling import Sam
@@ -15,8 +16,8 @@ from metaseg.utils.amg import calculate_stability_score
 
 
 class SamOnnxModel(nn.Module):
-    """
-    This model should not be called directly, but is used in ONNX export.
+    """This model should not be called directly, but is used in ONNX export.
+
     It combines the prompt encoder, mask decoder, and mask postprocessing of Sam,
     with some functions modified to enable model tracing. Also supports extra
     options controlling what information. See the ONNX export script for details.
@@ -29,6 +30,18 @@ class SamOnnxModel(nn.Module):
         use_stability_score: bool = False,
         return_extra_metrics: bool = False,
     ) -> None:
+        """Constructor for the SamOnnxModel class, which is used for ONNX export.
+
+        Args:
+            model (Sam): A Sam model instance,
+                which is used to decode masks.
+            return_single_mask (bool): Whether to return a single mask
+                or multiple masks.
+            use_stability_score (bool, optional): Whether to use a stability score.
+                Defaults to False.
+            return_extra_metrics (bool, optional): Whether to return extra metrics.
+                Defaults to False.
+        """
         super().__init__()
         self.mask_decoder = model.mask_decoder
         self.model = model
@@ -42,6 +55,19 @@ class SamOnnxModel(nn.Module):
     def resize_longest_image_size(
         input_image_size: torch.Tensor, longest_side: int
     ) -> torch.Tensor:
+        """Resizes the input image size tensor so that.
+
+            its longest side is equal to the given longest side.
+
+        Args:
+            input_image_size (torch.Tensor): A tensor of shape (2,)
+                representing the input image size (height, width).
+            longest_side (int): The desired length of the longest side of the image.
+
+        Returns:
+            torch.Tensor: A tensor of shape (2,)
+                representing the resized image size (height, width).
+        """
         input_image_size = input_image_size.to(torch.float32)
         scale = longest_side / torch.max(input_image_size)
         transformed_size = scale * input_image_size
@@ -51,6 +77,17 @@ class SamOnnxModel(nn.Module):
     def _embed_points(
         self, point_coords: torch.Tensor, point_labels: torch.Tensor
     ) -> torch.Tensor:
+        """Embeds the given points using the given embeddings.
+
+        Args:
+            point_coords (torch.Tensor): A tensor of shape (N, 2)
+                representing the input points.
+            point_labels (torch.Tensor): A tensor of shape (N, D)
+                representing the embeddings.
+
+        Returns:
+            torch.Tensor: A tensor of shape (N, 2 + D) representing the embedded points.
+        """
         point_coords = point_coords + 0.5
         point_coords = point_coords / self.img_size
         point_embedding = self.model.prompt_encoder.pe_layer._pe_encoding(point_coords)
@@ -74,6 +111,18 @@ class SamOnnxModel(nn.Module):
     def _embed_masks(
         self, input_mask: torch.Tensor, has_mask_input: torch.Tensor
     ) -> torch.Tensor:
+        """Embeds the given input mask using the given has_mask_input tensor.
+
+        Args:
+            input_mask (torch.Tensor): A tensor of shape (N, H, W)
+                representing the input mask.
+            has_mask_input (torch.Tensor): A tensor of shape (N,)
+                representing whether each input has a mask.
+
+        Returns:
+            torch.Tensor: A tensor of shape (N, D, H, W)
+                representing the embedded masks.
+        """
         mask_embedding = has_mask_input * self.model.prompt_encoder.mask_downscaling(
             input_mask
         )
@@ -85,6 +134,20 @@ class SamOnnxModel(nn.Module):
     def mask_postprocessing(
         self, masks: torch.Tensor, orig_im_size: torch.Tensor
     ) -> torch.Tensor:
+        """Postprocesses the given masks tensor by resizing it and.
+
+            cropping it to the original image size.
+
+        Args:
+            masks (torch.Tensor): A tensor of shape (N, C, H, W)
+                representing the masks.
+            orig_im_size (torch.Tensor): A tensor of shape (N, 2)
+                representing the original image size (height, width).
+
+        Returns:
+            torch.Tensor: A tensor of shape (N, C, H', W')
+                representing the postprocessed masks.
+        """
         masks = F.interpolate(
             masks,
             size=(self.img_size, self.img_size),
@@ -102,10 +165,12 @@ class SamOnnxModel(nn.Module):
 
     def select_masks(
         self, masks: torch.Tensor, iou_preds: torch.Tensor, num_points: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        # Determine if we should return the multi click
-        # mask or not from the number of points.
-        # The reweighting is used to avoid control flow.
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Determine if we should return the multi click.
+
+        mask or not from the number of points.
+        The reweighting is used to avoid control flow.
+        """
         score_reweight = torch.tensor(
             [[1000] + [0] * (self.model.mask_decoder.num_mask_tokens - 1)]
         ).to(iou_preds.device)
@@ -125,7 +190,28 @@ class SamOnnxModel(nn.Module):
         mask_input: torch.Tensor,
         has_mask_input: torch.Tensor,
         orig_im_size: torch.Tensor,
-    ):
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Runs the forward pass of the SamOnnxModel.
+
+        Args:
+            image_embeddings (torch.Tensor): A tensor of shape (N, D)
+                representing the image embeddings.
+            point_coords (torch.Tensor): A tensor of shape (N, P, 2)
+                representing the point coordinates.
+            point_labels (torch.Tensor): A tensor of shape (N, P)
+                representing the point labels.
+            mask_input (torch.Tensor): A tensor of shape (N, H, W)
+                representing the input mask.
+            has_mask_input (torch.Tensor): A tensor of shape (N,)
+                representing whether each input has a mask.
+            orig_im_size (torch.Tensor): A tensor of shape (N, 2)
+                representing the original image size (height, width).
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: A tuple containing
+                the predicted masks (shape: (N, 1, H', W'))
+                and the corresponding scores (shape: (N, 1)).
+        """
         sparse_embedding = self._embed_points(point_coords, point_labels)
         dense_embedding = self._embed_masks(mask_input, has_mask_input)
 

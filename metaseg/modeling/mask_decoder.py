@@ -1,10 +1,11 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
 
-from typing import List, Tuple, Type
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
 
 import torch
 from torch import nn
@@ -14,19 +15,21 @@ from metaseg.modeling.common import LayerNorm2d
 
 
 class MaskDecoder(nn.Module):
+    """Predicts masks given an image and prompt embeddings, using a transformer."""
+
     def __init__(
         self,
         *,
         transformer_dim: int,
         transformer: nn.Module,
         num_multimask_outputs: int = 3,
-        activation: Type[nn.Module] = nn.GELU,
+        activation: type[nn.Module] = nn.GELU,
         iou_head_depth: int = 3,
         iou_head_hidden_dim: int = 256,
     ) -> None:
-        """
-        Predicts masks given an image and prompt embeddings, using a
-        tranformer architecture.
+        """Predicts masks given an image and prompt embeddings, using a.
+
+            tranformer architecture.
 
         Arguments:
           transformer_dim (int): the channel dimension of the transformer
@@ -79,9 +82,8 @@ class MaskDecoder(nn.Module):
         sparse_prompt_embeddings: torch.Tensor,
         dense_prompt_embeddings: torch.Tensor,
         multimask_output: bool,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Predict masks given image and prompt embeddings.
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Predict masks given image and prompt embeddings.
 
         Arguments:
           image_embeddings (torch.Tensor): the embeddings from the image encoder
@@ -122,7 +124,7 @@ class MaskDecoder(nn.Module):
         image_pe: torch.Tensor,
         sparse_prompt_embeddings: torch.Tensor,
         dense_prompt_embeddings: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Predicts masks. See 'forward' for more details."""
         # Concatenate output tokens
         output_tokens = torch.cat(
@@ -147,7 +149,7 @@ class MaskDecoder(nn.Module):
         # Upscale mask embeddings and predict masks using the mask tokens
         src = src.transpose(1, 2).view(b, c, h, w)
         upscaled_embedding = self.output_upscaling(src)
-        hyper_in_list: List[torch.Tensor] = []
+        hyper_in_list: list[torch.Tensor] = []
         for i in range(self.num_mask_tokens):
             hyper_in_list.append(
                 self.output_hypernetworks_mlps[i](mask_tokens_out[:, i, :])
@@ -163,8 +165,10 @@ class MaskDecoder(nn.Module):
 
 
 # Lightly adapted from
-# https://github.com/facebookresearch/MaskFormer/blob/main/mask_former/modeling/transformer/transformer_predictor.py # noqa
+# https://github.com/facebookresearch/MaskFormer/blob/main/mask_former/modeling/transformer/transformer_predictor.py
 class MLP(nn.Module):
+    """A simple MLP with ReLU activations."""
+
     def __init__(
         self,
         input_dim: int,
@@ -173,15 +177,17 @@ class MLP(nn.Module):
         num_layers: int,
         sigmoid_output: bool = False,
     ) -> None:
+        """Initializes the MLP."""
         super().__init__()
         self.num_layers = num_layers
         h = [hidden_dim] * (num_layers - 1)
         self.layers = nn.ModuleList(
-            nn.Linear(n, k) for n, k in zip([input_dim] + h, h + [output_dim])
+            nn.Linear(n, k) for n, k in zip([input_dim, *h], [*h, output_dim])
         )
         self.sigmoid_output = sigmoid_output
 
     def forward(self, x):
+        """Forward pass."""
         for i, layer in enumerate(self.layers):
             x = F.relu(layer(x)) if i < self.num_layers - 1 else layer(x)
         if self.sigmoid_output:

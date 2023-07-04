@@ -1,14 +1,16 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
 
-from typing import Any, Dict, List, Optional, Tuple
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
+from typing import Any
 
 import numpy as np
 import torch
-from torchvision.ops.boxes import batched_nms, box_area  # type: ignore
+from torchvision.ops.boxes import batched_nms, box_area
 
 from metaseg.generator.predictor import SamPredictor
 from metaseg.modeling import Sam
@@ -31,12 +33,17 @@ from metaseg.utils.amg import (
     uncrop_points,
 )
 
+FLOAT_ZERO_VAL = 0.0
+INT_ZERO_VAL = 0
+
 
 class SamAutomaticMaskGenerator:
+    """Using a SAM model, generates masks for the entire image."""
+
     def __init__(
         self,
         model: Sam,
-        points_per_side: Optional[int] = 32,
+        points_per_side: int | None = 32,
         points_per_batch: int = 64,
         pred_iou_thresh: float = 0.88,
         stability_score_thresh: float = 0.95,
@@ -46,12 +53,12 @@ class SamAutomaticMaskGenerator:
         crop_nms_thresh: float = 0.7,
         crop_overlap_ratio: float = 512 / 1500,
         crop_n_points_downscale_factor: int = 1,
-        point_grids: Optional[List[np.ndarray]] = None,
+        point_grids: list[np.ndarray] | None = None,
         min_mask_region_area: int = 0,
         output_mode: str = "binary_mask",
     ) -> None:
-        """
-        Using a SAM model, generates masks for the entire image.
+        """Using a SAM model, generates masks for the entire image.
+
         Generates a grid of point prompts over the image, then filters
         low quality and duplicate masks. The default settings are chosen
         for SAM with a ViT-H backbone.
@@ -73,10 +80,10 @@ class SamAutomaticMaskGenerator:
             calculated the stability score.
           box_nms_thresh (float): The box IoU cutoff used by non-maximal
             suppression to filter duplicate masks.
-          crops_n_layers (int): If >0, mask prediction will be run again on
+          crop_n_layers (int): If >0, mask prediction will be run again on
             crops of the image. Sets the number of layers to run, where each
             layer has 2**i_layer number of image crops.
-          crops_nms_thresh (float): The box IoU cutoff used by non-maximal
+          crop_nms_thresh (float): The box IoU cutoff used by non-maximal
             suppression to filter duplicate masks between different crops.
           crop_overlap_ratio (float): Sets the degree to which crops overlap.
             In the first crop layer, crops will overlap by this fraction of
@@ -94,10 +101,6 @@ class SamAutomaticMaskGenerator:
             For large resolutions, 'binary_mask' may consume large amounts of
             memory.
         """
-
-        assert (points_per_side is None) != (
-            point_grids is None
-        ), "Exactly one of points_per_side or point_grid must be provided."
         if points_per_side is not None:
             self.point_grids = build_all_layer_point_grids(
                 points_per_side,
@@ -109,16 +112,8 @@ class SamAutomaticMaskGenerator:
         else:
             raise ValueError("Can't have both points_per_side and point_grid be None.")
 
-        assert output_mode in [
-            "binary_mask",
-            "uncompressed_rle",
-            "coco_rle",
-        ], f"Unknown output_mode {output_mode}."
-        if output_mode == "coco_rle":
-            from pycocotools import mask as mask_utils  # type: ignore # noqa: F401
-
-        if min_mask_region_area > 0:
-            import cv2  # type: ignore # noqa: F401
+        if output_mode not in ["binary_mask", "uncompressed_rle", "coco_rle"]:
+            raise ValueError(f"Unknown output_mode {output_mode}.")
 
         self.predictor = SamPredictor(model)
         self.points_per_batch = points_per_batch
@@ -134,9 +129,8 @@ class SamAutomaticMaskGenerator:
         self.output_mode = output_mode
 
     @torch.no_grad()
-    def generate(self, image: np.ndarray) -> List[Dict[str, Any]]:
-        """
-        Generates masks for the given image.
+    def generate(self, image: np.ndarray) -> list[dict[str, Any]]:
+        """Generates masks for the given image.
 
         Arguments:
           image (np.ndarray): The image to generate masks for, in HWC uint8 format.
@@ -158,7 +152,6 @@ class SamAutomaticMaskGenerator:
                crop_box (list(float)): The crop of the image used to generate
                  the mask, given in XYWH format.
         """
-
         # Generate masks
         mask_data = self._generate_masks(image)
 
@@ -197,6 +190,7 @@ class SamAutomaticMaskGenerator:
         return curr_anns
 
     def _generate_masks(self, image: np.ndarray) -> MaskData:
+        """Generates masks for the given image."""
         orig_size = image.shape[:2]
         crop_boxes, layer_idxs = generate_crop_boxes(
             orig_size, self.crop_n_layers, self.crop_overlap_ratio
@@ -219,7 +213,7 @@ class SamAutomaticMaskGenerator:
                 torch.zeros(len(data["boxes"])),  # categories
                 iou_threshold=self.crop_nms_thresh,
             )
-            data.filter(keep_by_nms)
+            data.mask_filter(keep_by_nms)
 
         data.to_numpy()
         return data
@@ -227,11 +221,11 @@ class SamAutomaticMaskGenerator:
     def _process_crop(
         self,
         image: np.ndarray,
-        crop_box: List[int],
+        crop_box: list[int],
         crop_layer_idx: int,
-        orig_size: Tuple[int, ...],
+        orig_size: tuple[int, ...],
     ) -> MaskData:
-        # Crop the image and calculate embeddings
+        """Crop the image and calculate embeddings."""
         x0, y0, x1, y1 = crop_box
         cropped_im = image[y0:y1, x0:x1, :]
         cropped_im_size = cropped_im.shape[:2]
@@ -258,7 +252,7 @@ class SamAutomaticMaskGenerator:
             torch.zeros(len(data["boxes"])),  # categories
             iou_threshold=self.box_nms_thresh,
         )
-        data.filter(keep_by_nms)
+        data.mask_filter(keep_by_nms)
 
         # Return to the original image frame
         data["boxes"] = uncrop_boxes_xyxy(data["boxes"], crop_box)
@@ -270,13 +264,13 @@ class SamAutomaticMaskGenerator:
     def _process_batch(
         self,
         points: np.ndarray,
-        im_size: Tuple[int, ...],
-        crop_box: List[int],
-        orig_size: Tuple[int, ...],
+        im_size: tuple[int, ...],
+        crop_box: list[int],
+        orig_size: tuple[int, ...],
     ) -> MaskData:
         orig_h, orig_w = orig_size
+        """ Run model on this batch """
 
-        # Run model on this batch
         transformed_points = self.predictor.transform.apply_coords(points, im_size)
         in_points = torch.as_tensor(transformed_points, device=self.predictor.device)
         in_labels = torch.ones(
@@ -298,9 +292,9 @@ class SamAutomaticMaskGenerator:
         del masks
 
         # Filter by predicted IoU
-        if self.pred_iou_thresh > 0.0:
+        if self.pred_iou_thresh > FLOAT_ZERO_VAL:
             keep_mask = data["iou_preds"] > self.pred_iou_thresh
-            data.filter(keep_mask)
+            data.mask_filter(keep_mask)
 
         # Calculate stability score
         data["stability_score"] = calculate_stability_score(
@@ -308,9 +302,9 @@ class SamAutomaticMaskGenerator:
             self.predictor.model.mask_threshold,
             self.stability_score_offset,
         )
-        if self.stability_score_thresh > 0.0:
+        if self.stability_score_thresh > FLOAT_ZERO_VAL:
             keep_mask = data["stability_score"] >= self.stability_score_thresh
-            data.filter(keep_mask)
+            data.mask_filter(keep_mask)
 
         # Threshold masks and calculate boxes
         data["masks"] = data["masks"] > self.predictor.model.mask_threshold
@@ -321,7 +315,7 @@ class SamAutomaticMaskGenerator:
             data["boxes"], crop_box, [0, 0, orig_w, orig_h]
         )
         if not torch.all(keep_mask):
-            data.filter(keep_mask)
+            data.mask_filter(keep_mask)
 
         # Compress to RLE
         data["masks"] = uncrop_masks(data["masks"], crop_box, orig_h, orig_w)
@@ -334,15 +328,14 @@ class SamAutomaticMaskGenerator:
     def postprocess_small_regions(
         mask_data: MaskData, min_area: int, nms_thresh: float
     ) -> MaskData:
-        """
-        Removes small disconnected regions and holes in masks, then reruns
+        """Removes small disconnected regions and holes in masks, then reruns.
+
         box NMS to remove any new duplicates.
-
         Edits mask_data in place.
-
         Requires open-cv as a dependency.
+
         """
-        if len(mask_data["rles"]) == 0:
+        if len(mask_data["rles"]) == INT_ZERO_VAL:
             return mask_data
 
         # Filter small disconnected regions and holes
@@ -373,10 +366,10 @@ class SamAutomaticMaskGenerator:
 
         # Only recalculate RLEs for masks that have changed
         for i_mask in keep_by_nms:
-            if scores[i_mask] == 0.0:
+            if scores[i_mask] == FLOAT_ZERO_VAL:
                 mask_torch = masks[i_mask].unsqueeze(0)
                 mask_data["rles"][i_mask] = mask_to_rle_pytorch(mask_torch)[0]
                 mask_data["boxes"][i_mask] = boxes[i_mask]  # update res directly
-        mask_data.filter(keep_by_nms)
+        mask_data.mask_filter(keep_by_nms)
 
         return mask_data

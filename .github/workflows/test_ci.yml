@@ -1,5 +1,5 @@
 ---
-name: Install Test Python
+name: Install and pytest test
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
@@ -44,6 +44,14 @@ jobs:
              source venv/bin/activate
              poetry install
 
+      - name: Pytest test
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+            source venv/bin/activate
+            pip3 uninstall torch torchvision -y
+            pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+            pytest .
+
 
       - name: Set up a virtual environment
         if: matrix.os == 'windows-latest'
@@ -73,3 +81,12 @@ jobs:
         run: |
              .\venv\Scripts\Activate.ps1
              poetry install
+
+      - name: Pytest test
+        shell: pwsh
+        if: matrix.os == 'windows-latest'
+        run: |
+            .\venv\Scripts\Activate.ps1
+            pip3 uninstall torch torchvision -y
+            pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+            pytest .

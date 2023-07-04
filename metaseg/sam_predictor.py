@@ -1,4 +1,10 @@
-from typing import Union
+"""Copyright (c) Metaseg Contributors.
+
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
 
 import cv2
 import numpy as np
@@ -7,7 +13,7 @@ from cv2 import Mat
 from tqdm import tqdm
 
 from metaseg.generator.automatic_mask_generator import SamAutomaticMaskGenerator
-from metaseg.generator.build_sam import sam_model_registry
+from metaseg.generator.build_sam import SAM_MODEL_REGISTRY
 from metaseg.generator.predictor import SamPredictor
 from metaseg.utils import (
     download_model,
@@ -21,21 +27,25 @@ from metaseg.utils import (
 
 
 class SegAutoMaskPredictor:
+    """Predicts the segmentation mask for an image or video using the SAM model."""
+
     def __init__(self):
+        """Initializes the segmentation model."""
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def load_model(self, model_type):
+        """Loads the segmentation model."""
         if self.model is None:
             self.model_path = download_model(model_type)
-            self.model = sam_model_registry[model_type](checkpoint=self.model_path)
+            self.model = SAM_MODEL_REGISTRY[model_type](self.model_path)
             self.model.to(device=self.device)
 
         return self.model
 
     def image_predict(
         self,
-        source: Union[str, Mat],
+        source: str | Mat,
         model_type,
         points_per_side,
         points_per_batch,
@@ -44,6 +54,7 @@ class SegAutoMaskPredictor:
         show=False,
         save=False,
     ):
+        """Predicts the segmentation mask for an image."""
         read_image = load_image(source)
         model = self.load_model(model_type)
         mask_generator = SamAutomaticMaskGenerator(
@@ -65,10 +76,9 @@ class SegAutoMaskPredictor:
             m = ann["segmentation"]
             img = np.ones((m.shape[0], m.shape[1], 3), dtype=np.uint8)
             color = colors[i % 256]
-            for i in range(3):
-                img[:, :, 0] = color[0]
-                img[:, :, 1] = color[1]
-                img[:, :, 2] = color[2]
+            img[:, :, 0] = color[0]
+            img[:, :, 1] = color[1]
+            img[:, :, 2] = color[2]
             img = cv2.bitwise_and(img, img, mask=m.astype(np.uint8))
             img = cv2.addWeighted(img, 0.35, np.zeros_like(img), 0.65, 0)
             mask_image = cv2.add(mask_image, img)
@@ -92,6 +102,7 @@ class SegAutoMaskPredictor:
         min_area,
         output_path="output.mp4",
     ):
+        """Predicts the segmentation mask for a video."""
         cap, out = load_video(source, output_path)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         colors = np.random.randint(0, 255, size=(256, 3), dtype=np.uint8)
@@ -145,21 +156,25 @@ class SegAutoMaskPredictor:
 
 
 class SegManualMaskPredictor:
+    """Predicts the segmentation mask for an image or video using the SAM model."""
+
     def __init__(self):
+        """Initializes the segmentation model."""
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def load_model(self, model_type):
+        """Loads the segmentation model."""
         if self.model is None:
             self.model_path = download_model(model_type)
-            self.model = sam_model_registry[model_type](checkpoint=self.model_path)
+            self.model = SAM_MODEL_REGISTRY[model_type](checkpoint=self.model_path)
             self.model.to(device=self.device)
 
         return self.model
 
     def image_predict(
         self,
-        source: Union[str, Mat],
+        source: str | Mat,
         model_type,
         input_box=None,
         input_point=None,
@@ -170,6 +185,7 @@ class SegManualMaskPredictor:
         show=False,
         save=False,
     ):
+        """Predicts the segmentation mask for an image."""
         image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)
@@ -222,6 +238,7 @@ class SegManualMaskPredictor:
         output_path="output.mp4",
         random_color=False,
     ):
+        """Predicts the segmentation mask for a video."""
         cap, out = load_video(source, output_path)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
