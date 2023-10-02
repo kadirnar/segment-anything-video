@@ -1,4 +1,10 @@
-from typing import Union
+"""Copyright (c) Metaseg Contributors.
+
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
 
 import cv2
 import matplotlib.pyplot as plt
@@ -7,7 +13,7 @@ import torch
 from cv2 import Mat
 from PIL import Image
 
-from metaseg.generator import SamPredictor, sam_model_registry
+from metaseg.generator import SAM_MODEL_REGISTRY, SamPredictor
 from metaseg.utils import (
     download_model,
     load_image,
@@ -28,6 +34,23 @@ def sahi_sliced_predict(
     overlap_height_ratio,
     overlap_width_ratio,
 ):
+    """Predicts object detection results for a large image by slicing.
+
+    Args:
+        image_path (str): The path to the input image file.
+        detection_model_type (str): The type of object detection model to use.
+        detection_model_path (str): The path to the object detection model file.
+        conf_th (float): The confidence threshold for object detection.
+        image_size (int): The size of the input image.
+        slice_height (int): The height of each slice.
+        slice_width (int): The width of each slice.
+        overlap_height_ratio (float): The overlap ratio for the height dimension.
+        overlap_width_ratio (float): The overlap ratio for the width dimension.
+
+    Returns:
+        List[Dict[str, Union[str, np.ndarray]]]: A list of dictionaries representing
+            the object detection results for each slice.
+    """
     try:
         from sahi import AutoDetectionModel
         from sahi.predict import get_prediction, get_sliced_prediction
@@ -62,21 +85,25 @@ def sahi_sliced_predict(
 
 
 class SahiAutoSegmentation:
+    """A class for performing automatic segmentation using SAHI library."""
+
     def __init__(self):
+        """Initializes the segmentation model."""
         self.model = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def load_model(self, model_type):
+        """Loads the segmentation model."""
         if self.model is None:
             self.model_path = download_model(model_type)
-            self.model = sam_model_registry[model_type](checkpoint=self.model_path)
+            self.model = SAM_MODEL_REGISTRY[model_type](checkpoint=self.model_path)
             self.model.to(device=self.device)
 
         return self.model
 
     def image_predict(
         self,
-        source: Union[str, Mat],
+        source: str | Mat,
         model_type,
         input_box=None,
         input_point=None,
@@ -86,6 +113,7 @@ class SahiAutoSegmentation:
         show=False,
         save=False,
     ):
+        """Performs automatic segmentation on an image."""
         read_image = load_image(source)
         model = self.load_model(model_type)
         predictor = SamPredictor(model)

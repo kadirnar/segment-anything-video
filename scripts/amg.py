@@ -1,17 +1,19 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
 
 import argparse
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import cv2
 
-from metaseg.generator import SamAutomaticMaskGenerator, sam_model_registry
+from metaseg.generator import SAM_MODEL_REGISTRY, SamAutomaticMaskGenerator
 
 parser = argparse.ArgumentParser(
     description=(
@@ -81,7 +83,7 @@ amg_settings.add_argument(
     "--points-per-batch",
     type=int,
     default=None,
-    help="How many input points to process " "simultaneously in one batch.",
+    help="How many input points to process simultaneously in one batch.",
 )
 
 amg_settings.add_argument(
@@ -96,14 +98,14 @@ amg_settings.add_argument(
     "--stability-score-thresh",
     type=float,
     default=None,
-    help="Exclude masks with a stability " "score lower than this threshold.",
+    help="Exclude masks with a stability score lower than this threshold.",
 )
 
 amg_settings.add_argument(
     "--stability-score-offset",
     type=float,
     default=None,
-    help="Larger values perturb the mask " "more when measuring stability score.",
+    help="Larger values perturb the mask more when measuring stability score.",
 )
 
 amg_settings.add_argument(
@@ -128,8 +130,9 @@ amg_settings.add_argument(
     "--crop-nms-thresh",
     type=float,
     default=None,
-    help="The overlap threshold for excluding "
-    "duplicate masks across different crops.",
+    help=(
+        "The overlap threshold for excluding duplicate masks across different crops."
+    ),
 )
 
 amg_settings.add_argument(
@@ -143,8 +146,10 @@ amg_settings.add_argument(
     "--crop-n-points-downscale-factor",
     type=int,
     default=None,
-    help="The number of points-per-side in each "
-    "layer of crop is reduced by this factor.",
+    help=(
+        "The number of points-per-side in each "
+        "layer of crop is reduced by this factor."
+    ),
 )
 
 amg_settings.add_argument(
@@ -159,7 +164,18 @@ amg_settings.add_argument(
 )
 
 
-def write_masks_to_folder(masks: List[Dict[str, Any]], path: str) -> None:
+def write_masks_to_folder(masks: list[dict[str, Any]], path: str) -> None:
+    """Writes the given masks to the specified folder and saves metadata about.
+
+        each mask in a CSV file.
+
+    Args:
+        masks (List[Dict[str, Any]]): A list of dictionaries containing metadata
+            about each mask.
+
+        path (str): The path to the folder where the masks and metadata should be
+            saved.
+    """
     header = (
         "id,area,bbox_x0,bbox_y0,bbox_w,bbox_h,"
         "point_input_x,point_input_y,predicted_iou,"
@@ -186,10 +202,20 @@ def write_masks_to_folder(masks: List[Dict[str, Any]], path: str) -> None:
     with open(metadata_path, "w") as f:
         f.write("\n".join(metadata))
 
-    return
-
 
 def get_amg_kwargs(args):
+    """Returns a dictionary of keyword arguments for.
+
+        the Active Mask Generation (AMG) algorithm.
+
+    Args:
+        args (argparse.Namespace): An object containing
+            the command-line arguments for the AMG algorithm.
+
+    Returns:
+        Dict[str, Any]: A dictionary of keyword
+            arguments for the AMG algorithm.
+    """
     amg_kwargs = {
         "points_per_side": args.points_per_side,
         "points_per_batch": args.points_per_batch,
@@ -208,8 +234,15 @@ def get_amg_kwargs(args):
 
 
 def main(args: argparse.Namespace) -> None:
-    print("Loading model...")
-    sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
+    """Runs the Active Mask Generation (AMG) algorithm on the.
+
+        specified input images and saves the resulting masks.
+
+    Args:
+        args (argparse.Namespace): An object
+            containing the command-line arguments for the AMG algorithm.
+    """
+    sam = SAM_MODEL_REGISTRY[args.model_type](checkpoint=args.checkpoint)
     _ = sam.to(device=args.device)
     output_mode = "coco_rle" if args.convert_to_rle else "binary_mask"
     amg_kwargs = get_amg_kwargs(args)
@@ -228,10 +261,8 @@ def main(args: argparse.Namespace) -> None:
     os.makedirs(args.output, exist_ok=True)
 
     for t in targets:
-        print(f"Processing '{t}'...")
         image = cv2.imread(t)
         if image is None:
-            print(f"Could not load '{t}' as an image, skipping...")
             continue
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -247,7 +278,6 @@ def main(args: argparse.Namespace) -> None:
             save_file = save_base + ".json"
             with open(save_file, "w") as f:
                 json.dump(masks, f)
-    print("Done!")
 
 
 if __name__ == "__main__":

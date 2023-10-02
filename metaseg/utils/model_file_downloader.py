@@ -1,14 +1,22 @@
+"""Copyright (c) Metaseg Contributors.
+
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
 import os
 from functools import partial
 from hashlib import md5
 from pathlib import Path
 from shutil import copyfileobj
 
-from requests import Response, get
+# A dictionary containing model types as keys and their respective URLs as values
+from requests import Response, get, status_codes
 from tqdm.auto import tqdm
 
-# A dictionary containing model types as keys and their respective URLs as values
-MODEL_URLS: dict[str : tuple[str]] = {
+MODEL_URLS: dict[str, tuple[str, ...]] = {
     "vit_h": (
         "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth",
         "green",
@@ -27,11 +35,16 @@ MODEL_URLS: dict[str : tuple[str]] = {
 }
 
 
-# md5 check function
 def _check_md5(filename: str, orig_md5: str) -> bool:
-    """
-    filename: str, A string representing the path to the file.
-    orig_md5: str, A string representing the original md5 hash.
+    """Check MD5 hash of the given file matches the original MD5 hash.
+
+    Args:
+        filename (str): A string representing the path to the file.
+        orig_md5 (str): A string representing the original MD5 hash.
+
+    Returns:
+        bool: True if the MD5 hash of the
+            file matches the original MD5 hash, False otherwise.
     """
     if not os.path.exists(filename):
         return False
@@ -39,7 +52,7 @@ def _check_md5(filename: str, orig_md5: str) -> bool:
         # read contents of the file
         data = file_to_check.read()
         # pipe contents of the file through
-        md5_returned = md5(data).hexdigest()
+        md5_returned = md5(data, usedforsecurity=False).hexdigest()
         # Return True if the computed hash matches the original one
         if md5_returned == orig_md5:
             return True
@@ -47,19 +60,21 @@ def _check_md5(filename: str, orig_md5: str) -> bool:
 
 
 def download_model(model_type):
-    """
-    model_type: str, A string representing the model type.
-    It can be 'vit_h', 'vit_l', or 'vit_b'.
-    """
+    """Download the model file for the given model type.
 
-    # Check if the model file already exists and model_type is in MODEL_URLS
+    Args:
+        model_type (str): A string representing the model type.
+            It can be 'vit_h', 'vit_l', or 'vit_b'.
+
+    Returns:
+        None
+    """
     filename = f"{model_type}.pth"
     if not os.path.exists(filename) and model_type in MODEL_URLS:
-        print(f"Downloading {filename} model \n")
         res: Response = get(
-            MODEL_URLS[model_type][0], stream=True, allow_redirects=True
+            MODEL_URLS[model_type][0], stream=True, allow_redirects=True, timeout=20
         )
-        if res.status_code != 200:
+        if res.status_code != status_codes.codes.ok:
             res.raise_for_status()
             raise RuntimeError(
                 f"Request to {MODEL_URLS[model_type][0]} "
@@ -86,11 +101,9 @@ def download_model(model_type):
 
     elif os.path.exists(filename):
         if not _check_md5(filename, MODEL_URLS[model_type][2]):
-            print("File corrupted. Re-downloading... \n")
             os.remove(filename)
             download_model(model_type)
 
-        print(f"{filename} model download complete. \n")
     else:
         raise ValueError(
             "Invalid model type. It should be 'vit_h', 'vit_l', or 'vit_b'."

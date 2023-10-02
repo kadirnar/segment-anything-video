@@ -1,8 +1,11 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
+"""Copyright (c) Meta Platforms, Inc. and affiliates.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+"""
+
 
 from functools import partial
 
@@ -17,61 +20,115 @@ from metaseg.modeling import (
 )
 
 
-def build_sam_vit_h(checkpoint=None):
+def build_sam_vit_h(checkpoint: str | None = None) -> Sam:
+    """build_sam_vit_h function.
+
+        Builds a Spatially Adaptive Multi-scale (SAM)
+        model with a Vision Transformer (ViT) backbone.
+
+    Args:
+        checkpoint (str, optional): Path to the checkpoint file to
+            load the model weights from. Defaults to None.
+
+    Returns:
+         Sam(nn.Module): The SAM model with ViT-H backbone.
+    """
     return _build_sam(
         encoder_embed_dim=1280,
         encoder_depth=32,
         encoder_num_heads=16,
-        encoder_global_attn_indexes=[7, 15, 23, 31],
+        encoder_global_attn_indexes=(7, 15, 23, 31),
         checkpoint=checkpoint,
     )
 
 
-build_sam = build_sam_vit_h
+def build_sam_vit_l(checkpoint: str | None = None) -> Sam:
+    """build_sam_vit_l function.
 
+        Builds a Spatially Adaptive Multi-scale (SAM)
+         model with a Vision Transformer (ViT) backbone.
 
-def build_sam_vit_l(checkpoint=None):
+    Args:
+        checkpoint (str, optional): Path to the checkpoint file to
+            load the model weights from. Defaults to None.
+
+    Returns:
+         Sam(nn.Module): The SAM model with ViT-L backbone.
+    """
     return _build_sam(
         encoder_embed_dim=1024,
         encoder_depth=24,
         encoder_num_heads=16,
-        encoder_global_attn_indexes=[5, 11, 17, 23],
+        encoder_global_attn_indexes=(5, 11, 17, 23),
         checkpoint=checkpoint,
     )
 
 
-def build_sam_vit_b(checkpoint=None):
+def build_sam_vit_b(checkpoint: str | None = None) -> Sam:
+    """Build_sam_vit_b function.
+
+    Builds a Spatially Adaptive Multi-scale (SAM)
+        model with a Vision Transformer (ViT) backbone.
+
+    Args:
+        checkpoint (str, optional): Path to the checkpoint file to
+            load the model weights from. Defaults to None.
+
+    Returns:
+        Sam(nn.Module): The SAM model with ViT-B backbone.
+    """
     return _build_sam(
         encoder_embed_dim=768,
         encoder_depth=12,
         encoder_num_heads=12,
-        encoder_global_attn_indexes=[2, 5, 8, 11],
+        encoder_global_attn_indexes=(2, 5, 8, 11),
         checkpoint=checkpoint,
     )
 
 
-build_sam_vit_h = {
-    "default": build_sam,
-    "vit_h": build_sam,
-    "vit_l": build_sam_vit_l,
-    "vit_b": build_sam_vit_b,
-}
-
-sam_model_registry = {
-    "default": build_sam,
-    "vit_h": build_sam,
+SAM_MODEL_REGISTRY = {
+    "default": build_sam_vit_h,
+    "vit_h": build_sam_vit_h,
     "vit_l": build_sam_vit_l,
     "vit_b": build_sam_vit_b,
 }
 
 
 def _build_sam(
-    encoder_embed_dim,
-    encoder_depth,
-    encoder_num_heads,
-    encoder_global_attn_indexes,
-    checkpoint=None,
-):
+    encoder_embed_dim: int,
+    encoder_depth: int,
+    encoder_num_heads: int,
+    encoder_global_attn_indexes: tuple[int, ...],
+    checkpoint: str | None = None,
+) -> Sam:
+    """Builds a Spatially Adaptive Multi-scale (SAM).
+
+        The _build_sam function builds a Spatially Adaptive Multi-scale (SAM)
+        model with a given encoder backbone. It takes in several arguments,
+        including the embedding dimension of the encoder,
+        the depth of the encoder, the number of heads in
+        the encoder's multi-head attention layers,
+        and the indexes of the encoder's
+        self-attention layers to use as global attention.
+        It also takes an optional argument for the path to the
+        checkpoint file to load the model weights from.
+        The function returns the SAM model with
+        the given encoder backbone as an nn.Module.
+
+
+    Args:
+        encoder_embed_dim (int): The embedding dimension of the encoder.
+        encoder_depth (int): The depth of the encoder.
+        encoder_num_heads (int): The number of heads in
+            the encoder's multi-head attention layers.
+        encoder_global_attn_indexes (List[int]): The indexes of the encoder's
+            self-attention layers to use as global attention.
+        checkpoint (str, optional): Path to the checkpoint file to
+            load the model weights from. Defaults to None.
+
+    Returns:
+        nn.Module: The SAM model with the given encoder backbone.
+    """
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
