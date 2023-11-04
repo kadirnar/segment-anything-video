@@ -94,7 +94,7 @@ class SahiAutoSegmentation:
         if type(input_box[0]) == list:
             input_boxes, new_boxes = multi_boxes(input_box, predictor, read_image)
 
-            masks, _, _ = predictor.predict_torch(
+            masks, iou_predictions, low_res_masks = predictor.predict_torch(
                 point_coords=None,
                 point_labels=None,
                 boxes=new_boxes,
@@ -104,7 +104,7 @@ class SahiAutoSegmentation:
         elif type(input_box[0]) == int:
             input_boxes = np.array(input_box)[None, :]
 
-            masks, _, _ = predictor.predict(
+            masks, iou_predictions, low_res_masks = predictor.predict(
                 point_coords=input_point,
                 point_labels=input_label,
                 box=input_boxes,
@@ -126,4 +126,4 @@ class SahiAutoSegmentation:
         if show:
             plt.show()
 
-        return masks
+        return masks, iou_predictions, low_res_masks
