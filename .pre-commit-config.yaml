@@ -28,7 +28,7 @@ repos:
         - --py3-plus
         - --keep-runtime-typing
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.1
+    rev: v0.12.5
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -48,7 +48,7 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/bandit
-    rev: '1.8.5'
+    rev: '1.8.6'
     hooks:
     -   id: bandit
         args: ["-c", "pyproject.toml"]
