@@ -28,12 +28,12 @@ repos:
         - --py3-plus
         - --keep-runtime-typing
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.3
+    rev: v0.16.6
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 -   repo: https://github.com/pycqa/isort
-    rev: 9.0.0b5
+    rev: 9.0.1
     hooks:
     -   id: isort
         name: isort (python)
@@ -54,7 +54,7 @@ repos:
         args: ["-c", "pyproject.toml"]
         additional_dependencies: ["bandit[toml]"]
 -   repo: https://github.com/PyCQA/autoflake
-    rev: v2.3.3
+    rev: v2.4.0
     hooks:
     -   id: autoflake
 
